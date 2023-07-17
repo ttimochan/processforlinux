@@ -10,6 +10,11 @@ Mix Space 适用于 Linux 桌面系统的进程上报工具，使用 Rust 实现
 
 ### 2.1 前置
 
+环境要求：
+
+- Xorg(X11)，暂时不支持 Wayland
+- 系统进程间通信使用 D-bus
+
 你的 Linux 操作系统需要有 `xprop`, `xwininfo` 命令。
 
 如果你是 ArchLinux 用户，可以使用以下命令安装：
