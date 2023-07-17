@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-17 18:02:35
+ * @LastEditTime: 2023-07-17 19:25:20
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use reqwest::header;
@@ -23,9 +23,7 @@ pub async fn process_report(
         .expect("SystemTime before UNIX EPOCH!")
         .as_secs();
 
-    let client = Client::builder()
-        .danger_accept_invalid_certs(true)
-        .build()?;
+    let client = Client::builder().build()?;
 
     let url = api_url;
 
@@ -55,7 +53,7 @@ pub async fn process_report(
 
     let parsed_response: serde_json::Value = serde_json::from_str(&response)?;
     println!("Playload: {}", payload);
-    println!("Response: {:?}", parsed_response);
+    println!("Response: {}", parsed_response);
 
     Ok(())
 }

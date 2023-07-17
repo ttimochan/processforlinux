@@ -2,67 +2,67 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-17 17:32:09
+ * @LastEditTime: 2023-07-17 19:24:32
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
-use std::io::{BufRead, BufReader};
-use std::process::{Command, Stdio};
+use std::process::Command;
+
 pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
-    let mut window_title = String::new();
     let xprop_output = Command::new("xprop")
         .arg("-root")
         .arg("_NET_ACTIVE_WINDOW")
-        .stdout(Stdio::piped())
-        .spawn()?;
+        .output()?;
 
-    let xprop_stdout = xprop_output
-        .stdout
-        .ok_or("Failed to capture xprop stdout")?;
-
-    let xprop_reader = BufReader::new(xprop_stdout);
-    let mut active_window_id = String::new();
-    for line in xprop_reader.lines() {
-        let line = line?;
-        if line.contains("_NET_ACTIVE_WINDOW(WINDOW)") {
-            active_window_id = line.split_whitespace().nth(4).unwrap_or("").to_string();
-            break;
-        }
-    }
+    let active_window_id = parse_xprop_output(&xprop_output.stdout)?;
 
     let xwininfo_output = Command::new("xwininfo")
         .arg("-id")
-        .arg(active_window_id)
-        .stdout(Stdio::piped())
-        .spawn()?;
+        .arg(&active_window_id)
+        .output()?;
 
-    let xwininfo_stdout = xwininfo_output
-        .stdout
-        .ok_or("Failed to capture xwininfo stdout")?;
-    let xwininfo_reader = BufReader::new(xwininfo_stdout);
+    let window_title = parse_xwininfo_output(&xwininfo_output.stdout)?;
 
-    for line in xwininfo_reader.lines() {
-        let line = line?;
-        if line.contains("xwininfo: Window id:") {
-            let window_name_parts: Vec<&str> = line.split('"').collect();
-            window_title = window_name_parts[1].to_string();
-        }
-    }
-    let xwininfo_result = &window_title;
-    let process_name = get_last_part(xwininfo_result).ok_or("Failed to get process name")?;
+    let process_name = get_last_part(&window_title).ok_or("Failed to get process name")?;
 
     if process_name == "Visual Studio Code" {
         return Ok("Code".to_string());
     }
+
     Ok(process_name)
 }
+
+fn parse_xprop_output(output: &[u8]) -> Result<String, Box<dyn Error>> {
+    let xprop_output = String::from_utf8_lossy(output);
+    let active_window_line = xprop_output
+        .lines()
+        .find(|line| line.contains("_NET_ACTIVE_WINDOW(WINDOW)"))
+        .ok_or("Failed to find active window line")?;
+    let active_window_id = active_window_line
+        .split_whitespace()
+        .nth(4)
+        .ok_or("Failed to extract active window ID")?;
+    Ok(active_window_id.to_string())
+}
+
+fn parse_xwininfo_output(output: &[u8]) -> Result<String, Box<dyn Error>> {
+    let xwininfo_output = String::from_utf8_lossy(output);
+    let window_title_line = xwininfo_output
+        .lines()
+        .find(|line| line.contains("xwininfo: Window id:"))
+        .ok_or("Failed to find window title line")?;
+    let window_name_parts: Vec<&str> = window_title_line.split('"').collect();
+    let window_title = window_name_parts.get(1).unwrap_or(&"").to_string();
+    Ok(window_title)
+}
+
 fn get_last_part(input: &str) -> Option<String> {
     let separator = " - ";
-    let last_part = input.rsplitn(2, separator).next().unwrap_or("").trim();
+    let last_part = input.rsplit_once(separator)?.1.trim();
 
     if last_part.is_empty() {
         None
     } else {
-        Some(String::from(last_part))
+        Some(last_part.to_string())
     }
 }
