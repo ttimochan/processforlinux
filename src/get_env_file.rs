@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-17 14:39:50
+ * @LastEditTime: 2023-07-17 18:43:03
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -48,6 +48,7 @@ pub fn init() -> Result<(String, String, String), Box<dyn Error>> {
                 .takes_value(true)
                 .help("Sets the config file path"),
         )
+        //TODO: Add daemon option but it's error
         .arg(
             Arg::with_name("daemon")
                 .short("d")
