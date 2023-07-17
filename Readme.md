@@ -2,7 +2,7 @@
 
 ## 1. 介绍
 
-Mix Space 适用于 Linux 桌面系统的进程上报工具，使用 Rust 实现，内存占用小，暂时没有观察到内存泄漏。
+Mix Space 适用于 Linux 桌面系统的进程上报工具，使用 Rust 实现，内存占用小，实现粗糙，暂时没有观察到内存泄漏。
 
 在 ArchLinux KDE 上开发。
 
