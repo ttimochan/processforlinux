@@ -2,9 +2,7 @@
 
 ## 1. 介绍
 
-对于 Mix Space 适用于 Linux 桌面系统的进程上报工具，使用 Rust 实现，内存占用小，实现粗糙，暂时没有观察到内存泄漏。
-
-是 [ProcessReporterMac](https://github.com/mx-space/ProcessReporterMac) 的 Linux 版本，目前仅有 CLI。
+Mix Space 适用于 Linux 桌面系统的进程上报工具，使用 Rust 实现，内存占用小，实现粗糙，暂时没有观察到内存泄漏，是 [ProcessReporterMac](https://github.com/mx-space/ProcessReporterMac) 的 Linux 版本，目前仅有 CLI。
 
 在 ArchLinux KDE 上开发。
 
