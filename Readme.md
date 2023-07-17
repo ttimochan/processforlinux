@@ -55,6 +55,12 @@ cargo build --release
 ./processforlinux -c /path/to/.env.process
 ```
 
+当然长参数也可以，如：
+
+```bash
+./processforlinux --config /path/to/.env.process
+```
+
 后台运行
 
 ```bash
