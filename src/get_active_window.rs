@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 11:27:47
+ * @LastEditTime: 2023-07-18 11:33:45
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -109,7 +109,6 @@ fn get_last_part(original_string: &str) -> Option<String> {
     let last_space_index = match original_string.rfind(' ') {
         Some(index) => index,
         None => {
-            println!("No space found in the string.");
             return Some(original_string.to_string());
         }
     };

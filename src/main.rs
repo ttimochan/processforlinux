@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 10:24:01
+ * @LastEditTime: 2023-07-18 11:44:32
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -15,7 +15,8 @@ use tokio::runtime::Runtime;
 fn main() {
     loop {
         let rt = Runtime::new().unwrap();
-        let (api_url, api_key, report_time, media_enable) = get_env_file::init().unwrap();
+        let (api_url, api_key, report_time, media_enable, log_enable) =
+            get_env_file::init().unwrap();
 
         let media_title = match media_enable.as_str() {
             "true" => match get_media::get_media_name::<dbus::Error>() {
@@ -34,6 +35,7 @@ fn main() {
             &api_key,
             &api_url,
             &report_time,
+            &log_enable,
         ));
 
         std::thread::sleep(std::time::Duration::from_secs(
@@ -48,6 +50,7 @@ async fn report(
     api_key: &str,
     api_url: &str,
     report_time: &str,
+    log_enable: &str,
 ) {
     if let Err(err) = reportprocess::process_report(
         &process_name,
@@ -55,6 +58,7 @@ async fn report(
         &api_key,
         &api_url,
         &report_time,
+        &log_enable,
     )
     .await
     {
