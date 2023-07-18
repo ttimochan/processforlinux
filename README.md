@@ -68,7 +68,7 @@ LOG_ENABLE=true # 是否打印日志
 
 ### 3.2 运行
 
-配置文件只需要放在执行目录即可，例如你在 /home/timochan/ 下执行，那么配置文件就放在 /home/timochan/.env.process。
+配置文件只需要放在执行目录即可，例如你在 /home/timochan/ 下执行，那么配置文件就放在 `/home/timochan/.env.process`，会自动读取当前执行目录的配置文件，如：
 
 ```bash
 ./processforlinux
@@ -86,7 +86,7 @@ LOG_ENABLE=true # 是否打印日志
 ./processforlinux --config /path/to/.env.process
 ```
 
-后台运行
+后台运行：
 
 ```bash
 nohup ./processforlinux -c /path/to/.env.process &
