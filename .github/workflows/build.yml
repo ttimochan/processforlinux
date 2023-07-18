@@ -28,7 +28,7 @@ jobs:
       - name: Build binary
         run: sudo apt install libdbus-1-dev pkg-config && cargo build --verbose --release
         
-      - name: Strip binary (linux )
+      - name: Strip binary
         if: matrix.build == 'linux'
         run: pwd && strip "target/release/processforlinux"
 
