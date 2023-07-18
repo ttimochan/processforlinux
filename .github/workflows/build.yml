@@ -30,7 +30,7 @@ jobs:
         
       - name: Strip binary (linux )
         if: matrix.build == 'linux'
-        run: strip "target/release/processforlinux"
+        run: pwd && strip "target/release/processforlinux"
 
       - name: Build archive
         shell: bash
