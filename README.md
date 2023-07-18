@@ -57,11 +57,16 @@ cargo build --release
 创建 .env.process 文件，内容可以参照 .env.process.example ：
 
 ```sh
-API_KEY=your_key  # 你的 key
-API_URL=https://api.example.cn/api/v2/fn/ps/update # 你的 API 地址
-REPORT_TIME=30 # 上报时间间隔，单位为秒
-MEDIA_ENABLE=true # 是否开启媒体状态上报
-LOG_ENABLE=true # 是否打印日志
+# 你的 key
+API_KEY=your_key
+# 你的 API 地址
+API_URL=https://api.example.cn/api/v2/fn/ps/update
+# 上报时间间隔，单位为秒
+REPORT_TIME=30
+# 是否开启媒体状态上报
+MEDIA_ENABLE=true 
+# 是否打印日志
+LOG_ENABLE=true 
 ```
 
 ### 3.2 运行
