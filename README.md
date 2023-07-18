@@ -25,7 +25,7 @@ yay -S xorg-xprop xorg-xwininfo
 
 其他发行版本，具体安装方法请参考你的 Linux 发行版的文档。
 
-### 2.2 编译
+### 2.2 从源码安装
 
 安装 Rust 环境
 
@@ -44,9 +44,13 @@ cd processforlinux
 cargo build --release
 ```
 
-## 3. 使用
-
 在 /target/release 目录下生成可执行文件 processforlinux，放到你喜欢的位置，给予可执行权限。
+
+### 2.3 从预编译包安装
+
+从 [Release](https://github.com/ttimochan/processforlinux/releases) 页面下载对应的版本，Arch Linux 可以使用 `yay -U xxx.pkg.tar.zst` 安装，其他发行版本将 `processforlinux-amd64.tar.gz.zip` 压缩包下载，解压后将可执行文件放到你喜欢的位置，给予可执行权限。
+
+## 3. 使用
 
 ### 3.1 配置文件
 
