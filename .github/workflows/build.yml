@@ -27,6 +27,8 @@ jobs:
           args: cargo install cargo-strip
 
       - name: Build binary
-        run: cargo build --verbose --release
+        run: 
+          - sudo apt install libdbus-1-dev pkg-config
+          - cargo build --verbose --release
         env:
           RUST_BACKTRACE: 1

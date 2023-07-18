@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 11:33:45
+ * @LastEditTime: 2023-07-18 15:15:28
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -90,7 +90,7 @@ pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
         "Telgram" => WindowTitle::None,  // can't get it
         "WebStorm" => WindowTitle::None, // can't get it
         "WeChat" => WindowTitle::None,   // can't get it
-        "Discord" => WindowTitle::Discord,
+        "Discord" => WindowTitle::Discord, //TODO: not test
         "Thunderbird" => WindowTitle::Mail,
         "Kmail" => WindowTitle::Mail,
         "QQ" => WindowTitle::QQ,
