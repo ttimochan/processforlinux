@@ -38,7 +38,7 @@ jobs:
           mkdir archive
           cp LICENSE README.md archive/
           cd archive
-            cp "../target/${{ matrix.target }}/release/processforlinux" ./
+            cp "../target/release/processforlinux" ./
             tar -czf "${{ matrix.archive-name }}" LICENSE README.md processforlinux
       - name: Upload archive
         uses: actions/upload-artifact@v3
