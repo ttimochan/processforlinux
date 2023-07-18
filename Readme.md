@@ -90,7 +90,12 @@ LOG_ENABLE=true # 是否打印日志
 nohup ./processforlinux -c /path/to/.env.process &
 ```
 
-## 4. 其他平台
+## 4. 问题
+
+- 媒体上报功能在 KDE 上测试通过，其他桌面环境未测试，目前仅兼容了网易云音乐和 yesplaymusic，QQ 音乐不走 D-bus，没办法获取信息。
+- D-bus，无法获取歌手，所以做了置空处理，如果你有更好的解决方案，请告诉我。
+
+## 5. 其他平台
 
 - [Windows](https://github.com/TNXG/ProcessReporterWinpy)
 - [macOS](https://github.com/mx-space/ProcessReporterMac)

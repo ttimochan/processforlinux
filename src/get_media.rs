@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 15:23:40
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 10:15:01
+ * @LastEditTime: 2023-07-18 12:22:10
  * @FilePath: /processforlinux/src/get_media.rs
  */
 use dbus::arg::RefArg;
@@ -28,7 +28,7 @@ pub fn get_media_name<E>() -> Option<String> {
 
             let proxy = match proxy_result {
                 Ok(proxy) => proxy,
-                Err(_) => continue, // Try the next media player identifier.
+                Err(_) => continue,
             };
 
             let metadata: std::collections::HashMap<
