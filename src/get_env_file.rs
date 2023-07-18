@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 17:26:05
+ * @LastEditTime: 2023-07-18 17:39:49
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -25,7 +25,6 @@ fn read_config_values(config_path: &str) -> Option<(String, String, String, Stri
         let trimmed_line = line.trim();
 
         if trimmed_line.starts_with('#') || trimmed_line.is_empty() {
-            // Ignore comments and empty lines
             continue;
         }
 
@@ -37,8 +36,6 @@ fn read_config_values(config_path: &str) -> Option<(String, String, String, Stri
                 "MEDIA_ENABLE" => media_enable = Some(value.to_string()),
                 "LOG_ENABLE" => log_enable = Some(value.to_string()),
                 _ => {
-                    // Handle unknown keys if necessary
-                    // For now, we just ignore them
                 }
             }
         }
