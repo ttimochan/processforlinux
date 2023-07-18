@@ -35,8 +35,7 @@ fn read_config_values(config_path: &str) -> Option<(String, String, String, Stri
                 "REPORT_TIME" => report_time = Some(value.to_string()),
                 "MEDIA_ENABLE" => media_enable = Some(value.to_string()),
                 "LOG_ENABLE" => log_enable = Some(value.to_string()),
-                _ => {
-                }
+                _ => {}
             }
         }
     }
