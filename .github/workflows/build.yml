@@ -1,0 +1,32 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [linux-amd]
+        include:
+          - build: linux-amd
+            os: ubuntu-20.04
+            archive-name: processforlinux-amd.tar.gz
+
+
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: docker://clux/muslrust:stable
+        with:
+          args: cargo install cargo-strip
+
+      - name: Build binary
+        run: cargo build --verbose --release
+        env:
+          RUST_BACKTRACE: 1
