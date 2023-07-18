@@ -48,8 +48,29 @@ cargo build --release
 
 在 /target/release 目录下生成可执行文件 processforlinux，放到你喜欢的位置，给予可执行权限。
 
-然后将 .env.process.example 文件重命名为 .env.process，填写你的 Mix Space 项目的 API_URL 和你设置的 API_KEY。
-该文件是配置文件可以与二进制文件放在同一目录下。当然也可以放在其他目录，但是需要在运行时指定配置文件的路径。
+### 3.1 配置文件
+
+创建 .env.process 文件，内容可以参照 .env.process.example ：
+
+```sh
+API_KEY=your_key  # 你的 key
+API_URL=https://api.example.cn/api/v2/fn/ps/update # 你的 API 地址
+REPORT_TIME=30 # 上报时间间隔，单位为秒
+MEDIA_ENABLE=true # 是否开启媒体状态上报
+LOG_ENABLE=true # 是否打印日志
+```
+
+当你填写完毕，请把注释删除，并剔除多余的空格，否则会报错（读入配置文件的逻辑很简单，没做意料之外的错误处理）。
+
+### 3.2 运行
+
+你可以把配置文件和知悉文件放在同一目录下，然后运行：
+
+```bash
+./processforlinux
+```
+
+当然使用短参数来指定配置文件的位置，如：
 
 ```bash
 ./processforlinux -c /path/to/.env.process
