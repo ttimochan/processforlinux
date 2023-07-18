@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 11:16:54
+ * @LastEditTime: 2023-07-18 11:27:47
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -86,19 +86,20 @@ pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
     let xwininfo_result = &window_title;
     let process_name = get_last_part(xwininfo_result).ok_or("Failed to get process name")?;
     let process_name = match process_name.as_str() {
-        "Visual-Studio-Code" => WindowTitle::Code,
-        "Telgram" => WindowTitle::None,
-        "WebStorm" => WindowTitle::WebStorm,
-        "WeChat" => WindowTitle::WeChat,
+        "Code" => WindowTitle::Code,
+        "Telgram" => WindowTitle::None,  // can't get it
+        "WebStorm" => WindowTitle::None, // can't get it
+        "WeChat" => WindowTitle::None,   // can't get it
         "Discord" => WindowTitle::Discord,
         "Thunderbird" => WindowTitle::Mail,
         "Kmail" => WindowTitle::Mail,
         "QQ" => WindowTitle::QQ,
         "Chrome" => WindowTitle::Chrome,
-        "QQ音乐" => WindowTitle::QQ音乐,
-        "网易云音乐" => WindowTitle::NetEaseMusic,
-        "iTerm2" => WindowTitle::iTerm2,
-        "typora" => WindowTitle::Typora,
+        "qqmusic" => WindowTitle::QQ音乐,
+        "Cloud Music" => WindowTitle::NetEaseMusic,
+        "Yakuake" => WindowTitle::iTerm2,
+        "Konsole" => WindowTitle::iTerm2,
+        "Typora" => WindowTitle::Typora,
         _ => WindowTitle::None,
     };
 
@@ -108,13 +109,11 @@ fn get_last_part(original_string: &str) -> Option<String> {
     let last_space_index = match original_string.rfind(' ') {
         Some(index) => index,
         None => {
-            // If no space found, just use the original string
             println!("No space found in the string.");
             return Some(original_string.to_string());
         }
     };
 
-    // Get the substring starting from the character after the last space
     let result_string = &original_string[(last_space_index + 1)..];
     Some(result_string.to_string())
-} 
+}
