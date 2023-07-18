@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 09:36:44
+ * @LastEditTime: 2023-07-18 10:19:47
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -66,10 +66,5 @@ pub fn init() -> Result<(String, String, String, String), Box<dyn Error>> {
                 .or_else(|| read_config_values(".env.process"))
                 .ok_or("Failed to read config values")?
         };
-
-    println!("API URL: {}", api_url);
-    println!("API Key: {}", api_key);
-    println!("Report Time: {}", report_time);
-    println!("Media Enable: {}", media_enable);
     Ok((api_url, api_key, report_time, media_enable))
 }
