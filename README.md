@@ -44,8 +44,6 @@ cd processforlinux
 cargo build --release
 ```
 
-等该项目稳定后将会提供二进制文件。
-
 ## 3. 使用
 
 在 /target/release 目录下生成可执行文件 processforlinux，放到你喜欢的位置，给予可执行权限。
@@ -66,7 +64,7 @@ LOG_ENABLE=true # 是否打印日志
 
 ### 3.2 运行
 
-你可以把配置文件和执行文件放在同一目录下，然后运行：
+配置文件只需要放在执行目录即可，例如你在 /home/timochan/ 下执行，那么配置文件就放在 /home/timochan/.env.process。
 
 ```bash
 ./processforlinux
