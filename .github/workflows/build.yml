@@ -29,8 +29,8 @@ jobs:
         run: sudo apt install libdbus-1-dev pkg-config && cargo build --verbose --release
         
       - name: Strip binary (linux )
-        if: matrix.build == 'linux' || matrix.build == 'macos'
-        run: strip "target/${{ matrix.target }}/release/processforlinux"
+        if: matrix.build == 'linux'
+        run: strip "target/release/processforlinux"
 
       - name: Build archive
         shell: bash

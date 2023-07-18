@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 11:47:40
+ * @LastEditTime: 2023-07-18 15:56:11
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -76,11 +76,10 @@ pub async fn process_report(
         }
     };
     if log_enable == "true" {
-        let parsed_response: serde_json::Value = serde_json::from_str(&response)?;
         println!("--------------------------------------------------");
         println!("This Report Time: {}", this_report_time);
         println!("Payload: {}", payload);
-        println!("Response: {}", parsed_response);
+        println!("Response: {}", &response);
         println!("Next Report Time: {}", next_report_time);
         println!("--------------------------------------------------");
     }
