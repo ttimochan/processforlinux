@@ -89,3 +89,8 @@ nohup ./processforlinux -c /path/to/.env.process &
 ```
 
 等该项目稳定后将会提供二进制文件。
+
+## 4. 其他平台
+
+- [Windows](https://github.com/TNXG/ProcessReporterWinpy)
+- [macOS](https://github.com/mx-space/ProcessReporterMac)
