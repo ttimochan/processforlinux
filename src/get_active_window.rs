@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 15:15:28
+ * @LastEditTime: 2023-07-19 20:51:03
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -97,6 +97,7 @@ pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
         "Chrome" => WindowTitle::Chrome,
         "qqmusic" => WindowTitle::QQ音乐,
         "Cloud Music" => WindowTitle::NetEaseMusic,
+        "YesPlayMusic" => WindowTitle::NetEaseMusic,
         "Yakuake" => WindowTitle::iTerm2,
         "Konsole" => WindowTitle::iTerm2,
         "Typora" => WindowTitle::Typora,
