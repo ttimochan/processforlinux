@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-19 20:51:03
+ * @LastEditTime: 2023-07-19 21:14:08
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -10,9 +10,9 @@ use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 enum WindowTitle {
     Code,
-    WebStorm,
-    Telgram,
-    WeChat, // Linux not have it
+    _WebStorm,
+    _Telgram,
+    _WeChat, // Linux not have it
     Discord,
     Mail,
     QQ,
@@ -27,9 +27,9 @@ impl std::fmt::Display for WindowTitle {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             WindowTitle::Code => write!(f, "Code"),
-            WindowTitle::WebStorm => write!(f, "WebStorm"),
-            WindowTitle::Telgram => write!(f, "Telgram"),
-            WindowTitle::WeChat => write!(f, "WeChat"),
+            //WindowTitle::WebStorm => write!(f, "WebStorm"),
+            //WindowTitle::Telgram => write!(f, "Telgram"),
+            //WindowTitle::WeChat => write!(f, "WeChat"),
             WindowTitle::Discord => write!(f, "Discord"),
             WindowTitle::Mail => write!(f, "Mail"),
             WindowTitle::QQ => write!(f, "QQ"),
@@ -39,6 +39,7 @@ impl std::fmt::Display for WindowTitle {
             WindowTitle::iTerm2 => write!(f, "iTerm2"),
             WindowTitle::Typora => write!(f, "Typora"),
             WindowTitle::None => write!(f, "None"),
+            _ => write!(f, "None"),
         }
     }
 }
