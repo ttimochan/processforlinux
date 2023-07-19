@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 15:56:11
+ * @LastEditTime: 2023-07-19 12:41:15
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -78,7 +78,6 @@ pub async fn process_report(
     if log_enable == "true" {
         println!("--------------------------------------------------");
         println!("This Report Time: {}", this_report_time);
-        println!("Payload: {}", payload);
         println!("Response: {}", &response);
         println!("Next Report Time: {}", next_report_time);
         println!("--------------------------------------------------");
