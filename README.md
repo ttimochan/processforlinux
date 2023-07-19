@@ -103,6 +103,14 @@ processforlinux --config /path/to/.env.process
 nohup processforlinux -c /path/to/.env.process &
 ```
 
+### 3.3 关于日志
+
+你可以使用重定向符号来将日志输出到文件，如：
+
+```bash
+processforlinux -c /path/to/.env.process > /path/to/processforlinux.log
+```
+
 ## 4. 问题
 
 - 媒体上报功能在 KDE 上测试通过，其他桌面环境未测试，目前仅兼容了网易云音乐和 yesplaymusic，QQ 音乐没有固定的 D-bus 路径，没办法获取信息。
