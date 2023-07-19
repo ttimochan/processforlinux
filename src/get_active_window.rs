@@ -87,9 +87,9 @@ pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
     let process_name = get_last_part(xwininfo_result).ok_or("Failed to get process name")?;
     let process_name = match process_name.as_str() {
         "Code" => WindowTitle::Code,
-        "Telgram" => WindowTitle::None,    // can't get it
-        "WebStorm" => WindowTitle::None,   // can't get it
-        "WeChat" => WindowTitle::None,     // can't get it
+        "Telgram" => WindowTitle::None,    //TODO: can't get it
+        "WebStorm" => WindowTitle::None,   //TODO: can't get it
+        "WeChat" => WindowTitle::None,     //TODO: can't get it
         "Discord" => WindowTitle::Discord, //TODO: not test
         "Thunderbird" => WindowTitle::Mail,
         "Kmail" => WindowTitle::Mail,
@@ -101,7 +101,7 @@ pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
         "Yakuake" => WindowTitle::iTerm2,
         "Konsole" => WindowTitle::iTerm2,
         "Typora" => WindowTitle::Typora,
-        _ => WindowTitle::None,
+        _ => WindowTitle::None, // Default
     };
 
     Ok(process_name.to_string())
