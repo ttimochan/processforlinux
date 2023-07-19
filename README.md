@@ -73,28 +73,34 @@ LOG_ENABLE=true
 
 ### 3.2 运行
 
-配置文件只需要放在执行目录即可，例如你在 /home/timochan/ 下执行，那么配置文件就放在 `/home/timochan/.env.process`，会自动读取当前执行目录的配置文件，如：
+配置文件只需要放在执行目录即可，例如：
 
 ```bash
-./processforlinux
+sudo cp processforlinux /usr/local/bin
+```
+
+例如你在 /home/timochan/ 下执行，那么配置文件就放在 `/home/timochan/.env.process`，会自动读取当前执行目录的配置文件，如：
+
+```bash
+processforlinux
 ```
 
 当然使用短参数来指定配置文件的位置，如：
 
 ```bash
-./processforlinux -c /path/to/.env.process
+processforlinux -c /path/to/.env.process
 ```
 
 当然长参数也可以，如：
 
 ```bash
-./processforlinux --config /path/to/.env.process
+processforlinux --config /path/to/.env.process
 ```
 
 后台运行：
 
 ```bash
-nohup ./processforlinux -c /path/to/.env.process &
+nohup processforlinux -c /path/to/.env.process &
 ```
 
 ## 4. 问题
