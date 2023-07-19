@@ -2,15 +2,26 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-18 17:39:49
+ * @LastEditTime: 2023-07-19 16:25:30
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
 use std::env;
 use std::error::Error;
+use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+#[derive(Debug)]
+struct ConfigError(String);
+
+impl fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Error for ConfigError {}
 fn read_config_values(config_path: &str) -> Option<(String, String, String, String, String)> {
     let file = File::open(config_path).ok()?;
     let reader = BufReader::new(file);
@@ -66,11 +77,27 @@ pub fn init() -> Result<(String, String, String, String, String), Box<dyn Error>
 
     let (api_url, api_key, report_time, media_enable, log_enable) =
         if let Some(path) = matches.value_of("config") {
-            read_config_values(path).ok_or("Failed to read config values")?
+            match read_config_values(path) {
+                Some(values) => values,
+                None => {
+                    return Err(Box::new(ConfigError(
+                        "Failed to read config values".to_string(),
+                    )));
+                }
+            }
         } else {
-            read_config_values(config_path.to_str().unwrap())
-                .or_else(|| read_config_values(".env.process"))
-                .ok_or("Failed to read config values")?
+            match read_config_values(config_path.to_str().unwrap()) {
+                Some(values) => values,
+                None => match read_config_values(".env.process") {
+                    Some(values) => values,
+                    None => {
+                        return Err(Box::new(ConfigError(
+                            "Failed to read config values".to_string(),
+                        )));
+                    }
+                },
+            }
         };
+
     Ok((api_url, api_key, report_time, media_enable, log_enable))
 }
