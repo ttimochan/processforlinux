@@ -85,7 +85,7 @@ sudo cp processforlinux /usr/local/bin
 processforlinux
 ```
 
-当然使用短参数来指定配置文件的位置，如：
+使用短参数来指定配置文件的位置，如：
 
 ```bash
 processforlinux -c /path/to/.env.process
