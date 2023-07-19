@@ -73,7 +73,7 @@ LOG_ENABLE=true
 
 ### 3.2 运行
 
-配置文件只需要放在执行目录即可，例如：
+二进制文件只需要放在执行目录即可，例如：
 
 ```bash
 sudo cp processforlinux /usr/local/bin
