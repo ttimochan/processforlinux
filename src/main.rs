@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-20 12:35:16
+ * @LastEditTime: 2023-07-20 15:24:01
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -25,17 +25,20 @@ async fn run_loop() {
                 break;
             }
         };
-        let (media_title, media_artist) = match media_enable.as_str() {
-            "true" => match get_media::get_media() {
-                Some((title, artist)) => (title, artist),
-                None => (String::from("None"), String::new()),
-            },
-            _ => (String::from("None"), String::new()),
-        };
-        println!(
-            "media_title: {} media_artlist: {:?}",
-            media_title, media_artist
-        );
+
+        let mut media_title = String::new();
+        let mut media_artist = String::new();
+        if media_enable == "true" {
+            let media_metadata = match get_media::get_media_metadata() {
+                Some(metadata) => metadata,
+                None => {
+                    eprintln!("Failed to get media metadata");
+                    continue;
+                }
+            };
+            media_title = media_metadata.title.unwrap_or_else(|| "None".to_string());
+            media_artist = media_metadata.artist.unwrap_or_else(|| "None".to_string());
+        }
         let process_name = match get_active_window::get_active_window_process_and_title() {
             Ok(name) => name,
             Err(e) => {

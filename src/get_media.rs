@@ -2,14 +2,19 @@
  * @Author: timochan
  * @Date: 2023-07-17 15:23:40
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-20 12:35:42
+ * @LastEditTime: 2023-07-20 15:23:01
  * @FilePath: /processforlinux/src/get_media.rs
  */
 use dbus::arg::RefArg;
 use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
 use dbus::blocking::{Connection, Proxy};
 
-pub fn get_media() -> Option<(String, String)> {
+pub struct MediaMetadata {
+    pub title: Option<String>,
+    pub artist: Option<String>,
+}
+
+pub fn get_media_metadata() -> Option<MediaMetadata> {
     let media_player_identifiers = [
         "org.mpris.MediaPlayer2.yesplaymusic",
         "org.mpris.MediaPlayer2.netease-cloud-music",
@@ -39,17 +44,43 @@ pub fn get_media() -> Option<(String, String)> {
                 Err(_) => continue, // Try the next media player identifier.
             };
 
-            if let Some(title) = metadata.get("xesam:title") {
-                if let Some(title_str) = title.as_str() {
-                    if let Some(artist) = metadata.get("xesam:artist") {
-                        if let Some(artist_str) = artist.as_str() {
-                            return Some((title_str.to_string(), artist_str.to_string()));
+            let title = metadata
+                .get("xesam:title")
+                .and_then(|title| title.as_str())
+                .map(|title_str| title_str.to_string());
+
+            let artist = if let Some(artist_variant) = metadata.get("xesam:artist") {
+                match artist_variant {
+                    dbus::arg::Variant(boxed_value) => {
+                        if let Some(artist_str) = boxed_value.as_str() {
+                            Some(artist_str.to_string())
+                        } else if let Some(artist_array) = boxed_value.as_iter() {
+                            let artists: Vec<String> = artist_array
+                                .filter_map(|a| a.as_str().map(String::from))
+                                .collect();
+
+                            if !artists.is_empty() {
+                                let artists_str = artists.join(", ");
+                                Some(artists_str)
+                            } else {
+                                println!("No artist information available.");
+                                None
+                            }
+                        } else {
+                            println!("Unknown artist format.");
+                            None
                         }
                     }
                 }
+            } else {
+                None
+            };
+
+            if title.is_some() || artist.is_some() {
+                return Some(MediaMetadata { title, artist });
             }
         }
     }
 
-    None 
+    None // Return None if no valid media player connection or metadata is found.
 }
