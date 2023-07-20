@@ -38,7 +38,7 @@ yay -S xorg-xprop xorg-xwininfo
 如果你是 Ubuntu / Debian ，请先安装以下依赖：
 
 ```bash
-sudo apt libdbus-1-dev pkg-config libssl-dev gcc -y
+sudo apt install libdbus-1-dev pkg-config libssl-dev gcc -y
 ```
 
 安装 Rust 环境
