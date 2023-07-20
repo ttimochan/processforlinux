@@ -29,7 +29,7 @@ yay -S xorg-xprop xorg-xwininfo
 
 ### 2.2.1 从预编译包安装
 
-从 [Release](https://github.com/ttimochan/processforlinux/releases) 页面下载对应的版本，Arch Linux 可以使用 `yay -U xxx.pkg.tar.zst` 安装，其他发行版本将 `processforlinux-amd64.tar.gz` 压缩包下载，解压后将可执行文件放到你喜欢的位置，给予可执行权限。
+从 [Releases](https://github.com/ttimochan/processforlinux/releases) 页面下载对应的版本，Arch Linux 可以使用 `yay -U xxx.pkg.tar.zst` 安装，其他发行版本将 `processforlinux-amd64.tar.gz` 压缩包下载，解压后将可执行文件放到你喜欢的位置，给予可执行权限。
 
 如果使用 `ldd` 命令查看链接库，如果发现链接库缺失，请从源码开始安装。
 
