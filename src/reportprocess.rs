@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-19 21:09:57
+ * @LastEditTime: 2023-07-20 12:05:50
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -17,12 +17,12 @@ use std::{
 };
 
 const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 uacq";
-const MEDIA_ARTIST_UNKNOWN: &str = "未知";
 const CONTENT_TYPE: &str = "application/json";
 
 pub async fn process_report(
     process_name: &str,
     media_title: &str,
+    media_artist: &str,
     api_key: &str,
     api_url: &str,
     report_time: &str,
@@ -30,7 +30,6 @@ pub async fn process_report(
 ) -> Result<(), Box<dyn Error>> {
     let utc_now = Utc::now();
     let this_report_time = utc_now.format("%Y-%m-%d %H:%M:%S").to_string();
-
     let timestamp = match SystemTime::now().duration_since(UNIX_EPOCH) {
         Ok(duration) => duration.as_secs(),
         Err(_) => {
@@ -51,7 +50,7 @@ pub async fn process_report(
             "key": api_key,
             "media": {
                 "title": media_title,
-                "artist": MEDIA_ARTIST_UNKNOWN,
+                "artist": media_artist,
             },
         }),
     };
@@ -87,6 +86,7 @@ pub async fn process_report(
 
         println!("--------------------------------------------------");
         println!("This Report Time: {}", this_report_time);
+        println!("This Report payload: {}", &payload);
         println!("Response: {}", &response);
         println!("Next Report Time: {}", next_report_time);
         println!("--------------------------------------------------");

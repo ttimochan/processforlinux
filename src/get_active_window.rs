@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-19 21:14:08
+ * @LastEditTime: 2023-07-20 10:39:00
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -10,16 +10,16 @@ use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 enum WindowTitle {
     Code,
-    _WebStorm,
-    _Telgram,
-    _WeChat, // Linux not have it
+    _WebStorm, //TODO: how to get it?
+    _Telgram,  //TODO: how to get it?
+    _WeChat,   // Linux not have it
     Discord,
     Mail,
     QQ,
     Chrome,
     QQ音乐,
     NetEaseMusic,
-    iTerm2,
+    iTerm2, //TODO: why it not CamalCase?
     Typora,
     None,
 }
@@ -27,7 +27,7 @@ impl std::fmt::Display for WindowTitle {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             WindowTitle::Code => write!(f, "Code"),
-            //WindowTitle::WebStorm => write!(f, "WebStorm"),
+            //WindowTitle::WebStorm => write!(f, "WebStorm"), //TODO: how to get it?
             //WindowTitle::Telgram => write!(f, "Telgram"),
             //WindowTitle::WeChat => write!(f, "WeChat"),
             WindowTitle::Discord => write!(f, "Discord"),

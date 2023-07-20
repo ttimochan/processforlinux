@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-19 21:02:55
+ * @LastEditTime: 2023-07-20 12:35:16
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -11,18 +11,9 @@ mod get_media;
 mod reportprocess;
 
 use std::{error::Error, io::Write, time::Duration};
-use tokio::runtime::Runtime;
 use tokio::time::sleep;
 
 async fn run_loop() {
-    let rt = match Runtime::new() {
-        Ok(rt) => rt,
-        Err(e) => {
-            eprintln!("Failed to create runtime: {}", e);
-            return;
-        }
-    };
-
     loop {
         std::io::stdout().flush().unwrap();
         std::io::stderr().flush().unwrap();
@@ -34,15 +25,17 @@ async fn run_loop() {
                 break;
             }
         };
-
-        let media_title = match media_enable.as_str() {
-            "true" => match get_media::get_media_name::<dbus::Error>() {
-                Some(title) => title,
-                None => String::from("None"),
+        let (media_title, media_artist) = match media_enable.as_str() {
+            "true" => match get_media::get_media() {
+                Some((title, artist)) => (title, artist),
+                None => (String::from("None"), String::new()),
             },
-            _ => String::from("None"),
+            _ => (String::from("None"), String::new()),
         };
-
+        println!(
+            "media_title: {} media_artlist: {:?}",
+            media_title, media_artist
+        );
         let process_name = match get_active_window::get_active_window_process_and_title() {
             Ok(name) => name,
             Err(e) => {
@@ -51,14 +44,17 @@ async fn run_loop() {
             }
         };
 
-        if let Err(e) = rt.block_on(report(
+        if let Err(e) = report(
             &process_name,
             &media_title,
+            &media_artist,
             &api_key,
             &api_url,
             &report_time,
             &log_enable,
-        )) {
+        )
+        .await
+        {
             eprintln!("Failed to report: {}", e);
         }
 
@@ -70,6 +66,7 @@ async fn run_loop() {
 async fn report(
     process_name: &str,
     media_title: &str,
+    media_artist: &str,
     api_key: &str,
     api_url: &str,
     report_time: &str,
@@ -78,6 +75,7 @@ async fn report(
     if let Err(err) = reportprocess::process_report(
         &process_name,
         &media_title,
+        &media_artist,
         &api_key,
         &api_url,
         &report_time,
