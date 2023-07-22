@@ -58,7 +58,7 @@ cd processforlinux
 cargo build --release
 ```
 
-在 /target/release 目录下生成可执行文件 processforlinux，放到你喜欢的位置，给予可执行权限。
+将会在 /target/release 目录编译出下可执行文件 `processforlinux`，将其放到你喜欢的位置，给予可执行权限。
 
 ## 3. 使用
 
