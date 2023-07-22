@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-22 10:35:01
+ * @LastEditTime: 2023-07-22 16:46:55
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -26,19 +26,22 @@ async fn run_loop() {
             }
         };
 
-        let mut media_title = String::new();
-        let mut media_artist = String::new();
-        if media_enable == "true" {
-            let media_metadata = match get_media::get_media_metadata() {
+        let media_enable = media_enable.parse::<bool>().unwrap_or_default();
+        let report_time = report_time.parse::<i64>().unwrap_or_default();
+        let log_enable = log_enable.parse::<bool>().unwrap_or_default();
+
+        let media_metadata = if media_enable {
+            match get_media::get_media_metadata() {
                 Some(metadata) => metadata,
                 None => {
                     eprintln!("Failed to get media metadata");
                     continue;
                 }
-            };
-            media_title = media_metadata.title.unwrap_or_else(|| "None".to_string());
-            media_artist = media_metadata.artist.unwrap_or_else(|| "None".to_string());
-        }
+            }
+        } else {
+            get_media::MediaMetadata::default()
+        };
+
         let process_name = match get_active_window::get_active_window_process_and_title() {
             Ok(name) => name,
             Err(e) => {
@@ -49,20 +52,31 @@ async fn run_loop() {
 
         if let Err(e) = report(
             &process_name,
-            &media_title,
-            &media_artist,
+            media_metadata
+                .title
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or_default(),
+            media_metadata
+                .artist
+                .as_ref()
+                .map(|s| s.as_str())
+                .unwrap_or_default(),
             &api_key,
             &api_url,
-            report_time.parse::<i64>().unwrap_or(0),
-            log_enable.parse::<bool>().unwrap_or(false),
+            report_time,
+            log_enable,
         )
         .await
         {
             eprintln!("Failed to report: {}", e);
         }
 
-        let report_interval_secs = report_time.parse::<u64>().unwrap_or(60);
-        sleep(Duration::from_secs(report_interval_secs)).await;
+        let report_interval_secs = report_time;
+        sleep(Duration::from_secs(
+            report_interval_secs.try_into().unwrap_or(60),
+        ))
+        .await;
     }
 }
 
@@ -75,7 +89,7 @@ async fn report(
     report_time: i64,
     log_enable: bool,
 ) -> Result<(), Box<dyn Error>> {
-    if let Err(err) = reportprocess::process_report(
+    reportprocess::process_report(
         &process_name,
         &media_title,
         &media_artist,
@@ -84,11 +98,7 @@ async fn report(
         report_time,
         log_enable,
     )
-    .await
-    {
-        eprintln!("Error: {}", err);
-        return Err(err.into());
-    }
+    .await?;
     Ok(())
 }
 

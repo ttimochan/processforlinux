@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 15:23:40
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-22 10:56:13
+ * @LastEditTime: 2023-07-22 16:43:38
  * @FilePath: /processforlinux/src/get_media.rs
  */
 use dbus::arg::RefArg;
@@ -14,8 +14,14 @@ pub struct MediaMetadata {
     pub title: Option<String>,
     pub artist: Option<String>,
 }
-
-// Constants for media player identifiers and interface names
+impl Default for MediaMetadata {
+    fn default() -> Self {
+        MediaMetadata {
+            title: None,
+            artist: None,
+        }
+    }
+}
 const MEDIA_PLAYER_IDENTIFIERS: [&str; 2] = [
     "org.mpris.MediaPlayer2.yesplaymusic",
     "org.mpris.MediaPlayer2.netease-cloud-music",
