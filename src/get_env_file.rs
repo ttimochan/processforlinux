@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-19 16:25:30
+ * @LastEditTime: 2023-07-22 10:41:09
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -22,8 +22,11 @@ impl fmt::Display for ConfigError {
 }
 
 impl Error for ConfigError {}
-fn read_config_values(config_path: &str) -> Option<(String, String, String, String, String)> {
-    let file = File::open(config_path).ok()?;
+
+fn read_config_values(
+    config_path: &str,
+) -> Result<(String, String, String, String, String), Box<dyn Error>> {
+    let file = File::open(config_path)?;
     let reader = BufReader::new(file);
     let mut api_url = None;
     let mut api_key = None;
@@ -32,7 +35,7 @@ fn read_config_values(config_path: &str) -> Option<(String, String, String, Stri
     let mut log_enable = None;
 
     for line_result in reader.lines() {
-        let line = line_result.ok()?;
+        let line = line_result?;
         let trimmed_line = line.trim();
 
         if trimmed_line.starts_with('#') || trimmed_line.is_empty() {
@@ -46,7 +49,10 @@ fn read_config_values(config_path: &str) -> Option<(String, String, String, Stri
                 "REPORT_TIME" => report_time = Some(value.to_string()),
                 "MEDIA_ENABLE" => media_enable = Some(value.to_string()),
                 "LOG_ENABLE" => log_enable = Some(value.to_string()),
-                _ => {}
+                _ => {
+                    // Handle unknown or invalid key-value pairs
+                    eprintln!("Unknown key-value pair: {}", trimmed_line);
+                }
             }
         }
     }
@@ -54,9 +60,11 @@ fn read_config_values(config_path: &str) -> Option<(String, String, String, Stri
     if let (Some(api_url), Some(api_key), Some(report_time), Some(media_enable), Some(log_enable)) =
         (api_url, api_key, report_time, media_enable, log_enable)
     {
-        Some((api_url, api_key, report_time, media_enable, log_enable))
+        Ok((api_url, api_key, report_time, media_enable, log_enable))
     } else {
-        None
+        Err(Box::new(ConfigError(
+            "Failed to read config values".to_string(),
+        )))
     }
 }
 
@@ -68,36 +76,16 @@ pub fn init() -> Result<(String, String, String, String, String), Box<dyn Error>
                 .long("config")
                 .value_name("FILE")
                 .takes_value(true)
+                .default_value(".env.process") // Set default config file path
                 .help("Sets the config file path"),
         )
         .get_matches();
 
-    let config_file = matches.value_of("config").unwrap_or(".env.process");
+    let config_file = matches.value_of("config").unwrap();
     let config_path = env::current_dir()?.join(config_file);
 
     let (api_url, api_key, report_time, media_enable, log_enable) =
-        if let Some(path) = matches.value_of("config") {
-            match read_config_values(path) {
-                Some(values) => values,
-                None => {
-                    return Err(Box::new(ConfigError(
-                        "Failed to read config values".to_string(),
-                    )));
-                }
-            }
-        } else {
-            match read_config_values(config_path.to_str().unwrap()) {
-                Some(values) => values,
-                None => match read_config_values(".env.process") {
-                    Some(values) => values,
-                    None => {
-                        return Err(Box::new(ConfigError(
-                            "Failed to read config values".to_string(),
-                        )));
-                    }
-                },
-            }
-        };
+        read_config_values(config_path.to_str().unwrap())?;
 
     Ok((api_url, api_key, report_time, media_enable, log_enable))
 }

@@ -2,30 +2,34 @@
  * @Author: timochan
  * @Date: 2023-07-17 15:23:40
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-20 15:23:01
+ * @LastEditTime: 2023-07-22 10:56:13
  * @FilePath: /processforlinux/src/get_media.rs
  */
 use dbus::arg::RefArg;
 use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
-use dbus::blocking::{Connection, Proxy};
+use dbus::blocking::Connection;
+use dbus::blocking::Proxy;
 
 pub struct MediaMetadata {
     pub title: Option<String>,
     pub artist: Option<String>,
 }
 
-pub fn get_media_metadata() -> Option<MediaMetadata> {
-    let media_player_identifiers = [
-        "org.mpris.MediaPlayer2.yesplaymusic",
-        "org.mpris.MediaPlayer2.netease-cloud-music",
-    ];
+// Constants for media player identifiers and interface names
+const MEDIA_PLAYER_IDENTIFIERS: [&str; 2] = [
+    "org.mpris.MediaPlayer2.yesplaymusic",
+    "org.mpris.MediaPlayer2.netease-cloud-music",
+];
 
-    for &identifier in &media_player_identifiers {
+const MPRIS_PLAYER_INTERFACE: &str = "org.mpris.MediaPlayer2.Player";
+const METADATA_PROPERTY: &str = "Metadata";
+const TITLE_KEY: &str = "xesam:title";
+const ARTIST_KEY: &str = "xesam:artist";
+
+pub fn get_media_metadata() -> Option<MediaMetadata> {
+    for &identifier in &MEDIA_PLAYER_IDENTIFIERS {
         if let Ok(connection) = Connection::new_session() {
-            let proxy_result: Result<Proxy<&Connection>, _> = Ok::<
-                dbus::blocking::Proxy<'_, &dbus::blocking::Connection>,
-                dbus::Error,
-            >(connection.with_proxy(
+            let proxy_result: Result<Proxy<&Connection>, dbus::Error> = Ok(connection.with_proxy(
                 identifier,
                 "/org/mpris/MediaPlayer2",
                 std::time::Duration::from_millis(5000),
@@ -36,20 +40,18 @@ pub fn get_media_metadata() -> Option<MediaMetadata> {
                 Err(_) => continue,
             };
 
-            let metadata: std::collections::HashMap<
-                String,
-                dbus::arg::Variant<Box<dyn dbus::arg::RefArg>>,
-            > = match proxy.get("org.mpris.MediaPlayer2.Player", "Metadata") {
-                Ok(metadata) => metadata,
-                Err(_) => continue, // Try the next media player identifier.
-            };
+            let metadata: std::collections::HashMap<String, dbus::arg::Variant<Box<dyn RefArg>>> =
+                match proxy.get(MPRIS_PLAYER_INTERFACE, METADATA_PROPERTY) {
+                    Ok(metadata) => metadata,
+                    Err(_) => continue, // Try the next media player identifier.
+                };
 
             let title = metadata
-                .get("xesam:title")
+                .get(TITLE_KEY)
                 .and_then(|title| title.as_str())
-                .map(|title_str| title_str.to_string());
+                .map(String::from);
 
-            let artist = if let Some(artist_variant) = metadata.get("xesam:artist") {
+            let artist = if let Some(artist_variant) = metadata.get(ARTIST_KEY) {
                 match artist_variant {
                     dbus::arg::Variant(boxed_value) => {
                         if let Some(artist_str) = boxed_value.as_str() {
