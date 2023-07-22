@@ -2,12 +2,13 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-20 10:39:00
+ * @LastEditTime: 2023-07-22 10:23:47
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
+
 enum WindowTitle {
     Code,
     _WebStorm, //TODO: how to get it?
@@ -44,8 +45,39 @@ impl std::fmt::Display for WindowTitle {
     }
 }
 
+impl WindowTitle {
+    fn from_string(s: &str) -> WindowTitle {
+        match s {
+            "Code" => WindowTitle::Code,
+            "Telgram" => WindowTitle::None,    //TODO: can't get it
+            "WebStorm" => WindowTitle::None,   //TODO: can't get it
+            "WeChat" => WindowTitle::None,     //TODO: can't get it
+            "Discord" => WindowTitle::Discord, //TODO: not test
+            "Thunderbird" => WindowTitle::Mail,
+            "Kmail" => WindowTitle::Mail,
+            "QQ" => WindowTitle::QQ,
+            "Chrome" => WindowTitle::Chrome,
+            "qqmusic" => WindowTitle::QQ音乐,
+            "Cloud Music" => WindowTitle::NetEaseMusic,
+            "YesPlayMusic" => WindowTitle::NetEaseMusic,
+            "Yakuake" => WindowTitle::iTerm2,
+            "Konsole" => WindowTitle::iTerm2,
+            "Typora" => WindowTitle::Typora,
+            _ => WindowTitle::None, // Default
+        }
+    }
+}
+
 pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
-    let mut window_title = String::new();
+    let active_window_id = get_active_window_id()?;
+    let window_title = get_window_title_by_id(&active_window_id)?;
+    let process_name = get_last_part(&window_title).ok_or("Failed to get process name")?;
+    let window_title_enum = WindowTitle::from_string(&process_name);
+
+    Ok(window_title_enum.to_string())
+}
+
+fn get_active_window_id() -> Result<String, Box<dyn Error>> {
     let xprop_output = Command::new("xprop")
         .arg("-root")
         .arg("_NET_ACTIVE_WINDOW")
@@ -66,17 +98,22 @@ pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
         }
     }
 
+    Ok(active_window_id)
+}
+
+fn get_window_title_by_id(window_id: &str) -> Result<String, Box<dyn Error>> {
     let xwininfo_output = Command::new("xwininfo")
         .arg("-id")
-        .arg(active_window_id)
+        .arg(window_id)
         .stdout(Stdio::piped())
         .spawn()?;
 
     let xwininfo_stdout = xwininfo_output
         .stdout
         .ok_or("Failed to capture xwininfo stdout")?;
-    let xwininfo_reader = BufReader::new(xwininfo_stdout);
 
+    let xwininfo_reader = BufReader::new(xwininfo_stdout);
+    let mut window_title = String::new();
     for line in xwininfo_reader.lines() {
         let line = line?;
         if line.contains("xwininfo: Window id:") {
@@ -84,29 +121,10 @@ pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
             window_title = window_name_parts[1].to_string();
         }
     }
-    let xwininfo_result = &window_title;
-    let process_name = get_last_part(xwininfo_result).ok_or("Failed to get process name")?;
-    let process_name = match process_name.as_str() {
-        "Code" => WindowTitle::Code,
-        "Telgram" => WindowTitle::None,    //TODO: can't get it
-        "WebStorm" => WindowTitle::None,   //TODO: can't get it
-        "WeChat" => WindowTitle::None,     //TODO: can't get it
-        "Discord" => WindowTitle::Discord, //TODO: not test
-        "Thunderbird" => WindowTitle::Mail,
-        "Kmail" => WindowTitle::Mail,
-        "QQ" => WindowTitle::QQ,
-        "Chrome" => WindowTitle::Chrome,
-        "qqmusic" => WindowTitle::QQ音乐,
-        "Cloud Music" => WindowTitle::NetEaseMusic,
-        "YesPlayMusic" => WindowTitle::NetEaseMusic,
-        "Yakuake" => WindowTitle::iTerm2,
-        "Konsole" => WindowTitle::iTerm2,
-        "Typora" => WindowTitle::Typora,
-        _ => WindowTitle::None, // Default
-    };
 
-    Ok(process_name.to_string())
+    Ok(window_title)
 }
+
 fn get_last_part(original_string: &str) -> Option<String> {
     let last_space_index = match original_string.rfind(' ') {
         Some(index) => index,
