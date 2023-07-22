@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-20 15:24:01
+ * @LastEditTime: 2023-07-22 10:35:01
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -53,8 +53,8 @@ async fn run_loop() {
             &media_artist,
             &api_key,
             &api_url,
-            &report_time,
-            &log_enable,
+            report_time.parse::<i64>().unwrap_or(0),
+            log_enable.parse::<bool>().unwrap_or(false),
         )
         .await
         {
@@ -72,8 +72,8 @@ async fn report(
     media_artist: &str,
     api_key: &str,
     api_url: &str,
-    report_time: &str,
-    log_enable: &str,
+    report_time: i64,
+    log_enable: bool,
 ) -> Result<(), Box<dyn Error>> {
     if let Err(err) = reportprocess::process_report(
         &process_name,
@@ -81,8 +81,8 @@ async fn report(
         &media_artist,
         &api_key,
         &api_url,
-        &report_time,
-        &log_enable,
+        report_time,
+        log_enable,
     )
     .await
     {

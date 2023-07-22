@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-20 15:24:09
+ * @LastEditTime: 2023-07-22 10:33:43
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -25,11 +25,9 @@ pub async fn process_report(
     media_artist: &str,
     api_key: &str,
     api_url: &str,
-    report_time: &str,
-    log_enable: &str,
+    report_time: i64,
+    log_enable: bool,
 ) -> Result<(), Box<dyn Error>> {
-    let utc_now = Utc::now();
-    let this_report_time = utc_now.format("%Y-%m-%d %H:%M:%S").to_string();
     let timestamp = match SystemTime::now().duration_since(UNIX_EPOCH) {
         Ok(duration) => duration.as_secs(),
         Err(_) => {
@@ -38,13 +36,14 @@ pub async fn process_report(
         }
     };
 
-    let payload = match media_title {
-        "None" => json!({
+    let payload = if media_title == "None" {
+        json!({
             "api_key": api_key,
             "process_name": process_name,
             "timestamp": timestamp,
-        }),
-        _ => json!({
+        })
+    } else {
+        json!({
             "timestamp": timestamp,
             "process": process_name,
             "key": api_key,
@@ -52,7 +51,7 @@ pub async fn process_report(
                 "title": media_title,
                 "artist": media_artist,
             },
-        }),
+        })
     };
 
     let client = Client::builder().build()?;
@@ -62,25 +61,24 @@ pub async fn process_report(
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(CONTENT_TYPE));
     headers.insert(header::USER_AGENT, HeaderValue::from_static(USER_AGENT));
 
-    let response = match process_name {
-        "None" => "None".to_string(),
-        _ => {
-            client
-                .post(url)
-                .headers(headers)
-                .body(payload.to_string())
-                .send()
-                .await?
-                .text()
-                .await?
-        }
+    let response = if media_title == "None" {
+        "None".to_string()
+    } else {
+        client
+            .post(url)
+            .headers(headers)
+            .body(payload.to_string())
+            .send()
+            .await?
+            .text()
+            .await?
     };
 
-    if log_enable == "true" {
+    if log_enable {
+        let utc_now = Utc::now();
+        let this_report_time = utc_now.format("%Y-%m-%d %H:%M:%S").to_string();
         let next_report_time = utc_now
-            .checked_add_signed(chrono::Duration::seconds(
-                report_time.parse::<i64>().unwrap_or(60),
-            ))
+            .checked_add_signed(chrono::Duration::seconds(report_time))
             .unwrap()
             .format("%Y-%m-%d %H:%M:%S");
 
