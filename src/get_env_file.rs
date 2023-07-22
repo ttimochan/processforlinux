@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-22 10:41:09
+ * @LastEditTime: 2023-07-22 16:57:38
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -85,7 +85,7 @@ pub fn init() -> Result<(String, String, String, String, String), Box<dyn Error>
     let config_path = env::current_dir()?.join(config_file);
 
     let (api_url, api_key, report_time, media_enable, log_enable) =
-        read_config_values(config_path.to_str().unwrap())?;
+        read_config_values(config_path.to_str().unwrap_or_default())?;
 
     Ok((api_url, api_key, report_time, media_enable, log_enable))
 }

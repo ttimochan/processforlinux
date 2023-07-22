@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-22 16:46:55
+ * @LastEditTime: 2023-07-22 17:08:04
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -26,9 +26,11 @@ async fn run_loop() {
             }
         };
 
-        let media_enable = media_enable.parse::<bool>().unwrap_or_default();
-        let report_time = report_time.parse::<i64>().unwrap_or_default();
-        let log_enable = log_enable.parse::<bool>().unwrap_or_default();
+        let (media_enable, report_time, log_enable) = (
+            media_enable.parse::<bool>().unwrap_or_default(),
+            report_time.parse::<i64>().unwrap_or_default(),
+            log_enable.parse::<bool>().unwrap_or_default(),
+        );
 
         let media_metadata = if media_enable {
             match get_media::get_media_metadata() {
