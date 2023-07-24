@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 17:54:08
+ * @LastEditTime: 2023-07-24 18:23:33
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -27,13 +27,7 @@ async fn run_loop() {
         };
 
         let media_metadata = if media_enable {
-            match get_media::get_media_metadata() {
-                Some(metadata) => metadata,
-                None => {
-                    eprintln!("Failed to get media metadata");
-                    continue;
-                }
-            }
+            get_media::get_media_metadata().unwrap_or_default()
         } else {
             get_media::MediaMetadata::default()
         };
@@ -48,16 +42,8 @@ async fn run_loop() {
 
         if let Err(e) = report(
             &process_name,
-            media_metadata
-                .title
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or_default(),
-            media_metadata
-                .artist
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or_default(),
+            &media_metadata.title.as_deref().unwrap_or_default(),
+            &media_metadata.artist.as_deref().unwrap_or_default(),
             &api_key,
             &api_url,
             report_time,
@@ -68,11 +54,8 @@ async fn run_loop() {
             eprintln!("Failed to report: {}", e);
         }
 
-        let report_interval_secs = report_time;
-        sleep(Duration::from_secs(
-            report_interval_secs.try_into().unwrap_or(60),
-        ))
-        .await;
+        let report_interval_secs = report_time.to_string().parse::<u64>().unwrap_or(60);
+        sleep(Duration::from_secs(report_interval_secs)).await;
     }
 }
 
@@ -86,11 +69,11 @@ async fn report(
     log_enable: bool,
 ) -> Result<(), Box<dyn Error>> {
     reportprocess::process_report(
-        &process_name,
-        &media_title,
-        &media_artist,
-        &api_key,
-        &api_url,
+        process_name,
+        media_title,
+        media_artist,
+        api_key,
+        api_url,
         report_time,
         log_enable,
     )

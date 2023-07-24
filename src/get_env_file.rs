@@ -2,27 +2,26 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 17:59:14
+ * @LastEditTime: 2023-07-24 18:22:22
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
-use std::env;
 use std::error::Error;
-use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 struct ConfigError(String);
 
-impl fmt::Display for ConfigError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl std::fmt::Display for ConfigError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
 impl Error for ConfigError {}
 
+#[derive(Debug, Clone)]
 struct UserConfig {
     api_url: String,
     api_key: String,
@@ -30,18 +29,12 @@ struct UserConfig {
     media_enable: bool,
     log_enable: bool,
 }
-fn read_config_values(
-    config_path: &str,
-) -> Result<(String, String, i64, bool, bool), Box<dyn Error>> {
+
+fn read_config_values(config_path: &str) -> Result<UserConfig, Box<dyn Error>> {
     let file = File::open(config_path)?;
     let reader = BufReader::new(file);
-    let mut user_config = UserConfig {
-        api_url: "".to_string(),
-        api_key: "".to_string(),
-        report_time: 60,
-        media_enable: false,
-        log_enable: false,
-    };
+    let (mut api_url, mut api_key, mut report_time, mut media_enable, mut log_enable) =
+        (None, None, None, None, None);
 
     for line_result in reader.lines() {
         let line = line_result?;
@@ -53,13 +46,11 @@ fn read_config_values(
 
         if let Some((key, value)) = trimmed_line.split_once('=') {
             match key {
-                "API_URL" => user_config.api_url = value.to_string(),
-                "API_KEY" => user_config.api_key = value.to_string(),
-                "REPORT_TIME" => user_config.report_time = value.parse::<i64>().unwrap_or_default(),
-                "MEDIA_ENABLE" => {
-                    user_config.media_enable = value.parse::<bool>().unwrap_or_default()
-                }
-                "LOG_ENABLE" => user_config.log_enable = value.parse::<bool>().unwrap_or_default(),
+                "API_URL" => api_url = Some(value.to_string()),
+                "API_KEY" => api_key = Some(value.to_string()),
+                "REPORT_TIME" => report_time = Some(value.parse()?),
+                "MEDIA_ENABLE" => media_enable = Some(value.parse()?),
+                "LOG_ENABLE" => log_enable = Some(value.parse()?),
                 _ => {
                     // Handle unknown or invalid key-value pairs
                     eprintln!("Unknown key-value pair: {}", trimmed_line);
@@ -68,15 +59,14 @@ fn read_config_values(
         }
     }
 
-    let (api_url, api_key, report_time, media_enable, log_enable) = (
-        user_config.api_url,
-        user_config.api_key,
-        user_config.report_time,
-        user_config.media_enable,
-        user_config.log_enable,
-    );
-    
-    Ok((api_url, api_key, report_time, media_enable, log_enable))
+    Ok(UserConfig {
+        api_url: api_url.unwrap_or_default(),
+        api_key: api_key.unwrap_or_default(),
+        report_time: report_time.ok_or_else(|| ConfigError("REPORT_TIME not set".to_string()))?,
+        media_enable: media_enable
+            .ok_or_else(|| ConfigError("MEDIA_ENABLE not set".to_string()))?,
+        log_enable: log_enable.ok_or_else(|| ConfigError("LOG_ENABLE not set".to_string()))?,
+    })
 }
 
 pub fn init() -> Result<(String, String, i64, bool, bool), Box<dyn Error>> {
@@ -93,23 +83,9 @@ pub fn init() -> Result<(String, String, i64, bool, bool), Box<dyn Error>> {
         .get_matches();
 
     let config_file = matches.value_of("config").unwrap();
-    let config_path = env::current_dir()?.join(config_file);
+    let config_path = std::env::current_dir()?.join(config_file);
 
-    let mut user_config = UserConfig {
-        api_url: "".to_string(),
-        api_key: "".to_string(),
-        report_time: 60,
-        media_enable: false,
-        log_enable: false,
-    };
-    (
-        user_config.api_url,
-        user_config.api_key,
-        user_config.report_time,
-        user_config.media_enable,
-        user_config.log_enable,
-    ) = read_config_values(config_path.to_str().unwrap_or_default())?;
-
+    let user_config = read_config_values(config_path.to_str().unwrap())?;
     Ok((
         user_config.api_url,
         user_config.api_key,

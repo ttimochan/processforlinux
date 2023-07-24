@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-22 15:24:59
+ * @LastEditTime: 2023-07-24 18:33:10
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -71,7 +71,7 @@ impl WindowTitle {
 pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
     let active_window_id = get_active_window_id()?;
     let window_title = get_window_title_by_id(&active_window_id)?;
-    let process_name = get_last_part(&window_title).ok_or("Failed to get process name")?;
+    let process_name = get_last_part(&window_title).unwrap_or_else(String::new);
     let window_title_enum = WindowTitle::from_string(&process_name);
 
     Ok(window_title_enum.to_string())
@@ -89,16 +89,14 @@ fn get_active_window_id() -> Result<String, Box<dyn Error>> {
         .ok_or("Failed to capture xprop stdout")?;
 
     let xprop_reader = BufReader::new(xprop_stdout);
-    let mut active_window_id = String::new();
     for line in xprop_reader.lines() {
         let line = line?;
         if line.contains("_NET_ACTIVE_WINDOW(WINDOW)") {
-            active_window_id = line.split_whitespace().nth(4).unwrap_or("").to_string();
-            break;
+            return Ok(line.split_whitespace().nth(4).unwrap_or("").to_string());
         }
     }
 
-    Ok(active_window_id)
+    Err("Failed to get active window ID".into())
 }
 
 fn get_window_title_by_id(window_id: &str) -> Result<String, Box<dyn Error>> {
@@ -106,33 +104,23 @@ fn get_window_title_by_id(window_id: &str) -> Result<String, Box<dyn Error>> {
         .arg("-id")
         .arg(window_id)
         .stdout(Stdio::piped())
-        .spawn()?;
-
-    let xwininfo_stdout = xwininfo_output
+        .spawn()?
         .stdout
         .ok_or("Failed to capture xwininfo stdout")?;
 
-    let xwininfo_reader = BufReader::new(xwininfo_stdout);
-    let mut window_title = String::new();
+    let xwininfo_reader = BufReader::new(xwininfo_output);
     for line in xwininfo_reader.lines() {
         let line = line?;
         if line.contains("xwininfo: Window id:") {
             let window_name_parts: Vec<&str> = line.split('"').collect();
-            window_title = window_name_parts[1].to_string();
+            return Ok(window_name_parts[1].to_string());
         }
     }
 
-    Ok(window_title)
+    Err("Failed to get window title".into())
 }
 
 fn get_last_part(original_string: &str) -> Option<String> {
-    let last_space_index = match original_string.rfind(' ') {
-        Some(index) => index,
-        None => {
-            return Some(original_string.to_string());
-        }
-    };
-
-    let result_string = &original_string[(last_space_index + 1)..];
-    Some(result_string.to_string())
+    let last_space_index = original_string.rfind(' ')?;
+    Some(original_string[(last_space_index + 1)..].to_string())
 }

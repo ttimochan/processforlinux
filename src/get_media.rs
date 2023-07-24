@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 15:23:40
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-22 16:48:42
+ * @LastEditTime: 2023-07-24 18:30:54
  * @FilePath: /processforlinux/src/get_media.rs
  */
 use dbus::arg::RefArg;
@@ -22,18 +22,19 @@ impl Default for MediaMetadata {
         }
     }
 }
-const MEDIA_PLAYER_IDENTIFIERS: [&str; 2] = [
-    "org.mpris.MediaPlayer2.yesplaymusic",
-    "org.mpris.MediaPlayer2.netease-cloud-music",
-];
-
-const MPRIS_PLAYER_INTERFACE: &str = "org.mpris.MediaPlayer2.Player";
-const METADATA_PROPERTY: &str = "Metadata";
+mod constants {
+    pub const MEDIA_PLAYER_IDENTIFIERS: [&str; 2] = [
+        "org.mpris.MediaPlayer2.yesplaymusic",
+        "org.mpris.MediaPlayer2.netease-cloud-music",
+    ];
+    pub const MPRIS_PLAYER_INTERFACE: &str = "org.mpris.MediaPlayer2.Player";
+    pub const METADATA_PROPERTY: &str = "Metadata";
+}
 const TITLE_KEY: &str = "xesam:title";
 const ARTIST_KEY: &str = "xesam:artist";
 
 pub fn get_media_metadata() -> Option<MediaMetadata> {
-    for &identifier in &MEDIA_PLAYER_IDENTIFIERS {
+    for &identifier in &constants::MEDIA_PLAYER_IDENTIFIERS {
         if let Ok(connection) = Connection::new_session() {
             let proxy_result: Result<Proxy<&Connection>, dbus::Error> = Ok(connection.with_proxy(
                 identifier,
@@ -47,7 +48,10 @@ pub fn get_media_metadata() -> Option<MediaMetadata> {
             };
 
             let metadata: std::collections::HashMap<String, dbus::arg::Variant<Box<dyn RefArg>>> =
-                match proxy.get(MPRIS_PLAYER_INTERFACE, METADATA_PROPERTY) {
+                match proxy.get(
+                    constants::MPRIS_PLAYER_INTERFACE,
+                    constants::METADATA_PROPERTY,
+                ) {
                     Ok(metadata) => metadata,
                     Err(_) => continue, // Try the next media player identifier.
                 };

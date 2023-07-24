@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-22 10:33:43
+ * @LastEditTime: 2023-07-24 18:25:53
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -11,10 +11,7 @@ use reqwest::{
     Client,
 };
 use serde_json::json;
-use std::{
-    error::Error,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::error::Error;
 
 const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 uacq";
 const CONTENT_TYPE: &str = "application/json";
@@ -28,13 +25,7 @@ pub async fn process_report(
     report_time: i64,
     log_enable: bool,
 ) -> Result<(), Box<dyn Error>> {
-    let timestamp = match SystemTime::now().duration_since(UNIX_EPOCH) {
-        Ok(duration) => duration.as_secs(),
-        Err(_) => {
-            eprintln!("SystemTime before UNIX EPOCH!");
-            return Ok(());
-        }
-    };
+    let timestamp = Utc::now().timestamp();
 
     let payload = if media_title == "None" {
         json!({
@@ -67,7 +58,7 @@ pub async fn process_report(
         client
             .post(url)
             .headers(headers)
-            .body(payload.to_string())
+            .body(serde_json::to_string(&payload)?)
             .send()
             .await?
             .text()
