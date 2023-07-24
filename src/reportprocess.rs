@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:25:53
+ * @LastEditTime: 2023-07-24 18:39:39
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -52,7 +52,7 @@ pub async fn process_report(
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(CONTENT_TYPE));
     headers.insert(header::USER_AGENT, HeaderValue::from_static(USER_AGENT));
 
-    let response = if media_title == "None" {
+    let response = if process_name == "None" {
         "None".to_string()
     } else {
         client

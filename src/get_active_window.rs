@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:33:10
+ * @LastEditTime: 2023-07-24 18:37:33
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -71,7 +71,7 @@ impl WindowTitle {
 pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
     let active_window_id = get_active_window_id()?;
     let window_title = get_window_title_by_id(&active_window_id)?;
-    let process_name = get_last_part(&window_title).unwrap_or_else(String::new);
+    let process_name = get_last_part(&window_title).unwrap_or("None".to_string());
     let window_title_enum = WindowTitle::from_string(&process_name);
 
     Ok(window_title_enum.to_string())
