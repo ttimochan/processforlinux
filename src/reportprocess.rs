@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:39:39
+ * @LastEditTime: 2023-07-24 18:42:55
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -46,7 +46,6 @@ pub async fn process_report(
     };
 
     let client = Client::builder().build()?;
-    let url = api_url;
 
     let mut headers = header::HeaderMap::new();
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(CONTENT_TYPE));
@@ -56,7 +55,7 @@ pub async fn process_report(
         "None".to_string()
     } else {
         client
-            .post(url)
+            .post(api_url)
             .headers(headers)
             .body(serde_json::to_string(&payload)?)
             .send()

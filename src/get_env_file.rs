@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:22:22
+ * @LastEditTime: 2023-07-24 18:45:44
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -60,8 +60,8 @@ fn read_config_values(config_path: &str) -> Result<UserConfig, Box<dyn Error>> {
     }
 
     Ok(UserConfig {
-        api_url: api_url.unwrap_or_default(),
-        api_key: api_key.unwrap_or_default(),
+        api_url: api_url.ok_or_else(|| ConfigError("API_URL not set".to_string()))?,
+        api_key: api_key.ok_or_else(|| ConfigError("API_KEY not set".to_string()))?,
         report_time: report_time.ok_or_else(|| ConfigError("REPORT_TIME not set".to_string()))?,
         media_enable: media_enable
             .ok_or_else(|| ConfigError("MEDIA_ENABLE not set".to_string()))?,

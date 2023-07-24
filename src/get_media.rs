@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 15:23:40
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:30:54
+ * @LastEditTime: 2023-07-24 18:43:50
  * @FilePath: /processforlinux/src/get_media.rs
  */
 use dbus::arg::RefArg;
@@ -30,8 +30,10 @@ mod constants {
     pub const MPRIS_PLAYER_INTERFACE: &str = "org.mpris.MediaPlayer2.Player";
     pub const METADATA_PROPERTY: &str = "Metadata";
 }
-const TITLE_KEY: &str = "xesam:title";
-const ARTIST_KEY: &str = "xesam:artist";
+mod media {
+    pub const TITLE_KEY: &str = "xesam:title";
+    pub const ARTIST_KEY: &str = "xesam:artist";
+}
 
 pub fn get_media_metadata() -> Option<MediaMetadata> {
     for &identifier in &constants::MEDIA_PLAYER_IDENTIFIERS {
@@ -57,11 +59,11 @@ pub fn get_media_metadata() -> Option<MediaMetadata> {
                 };
 
             let title = metadata
-                .get(TITLE_KEY)
+                .get(media::TITLE_KEY)
                 .and_then(|title| title.as_str())
                 .map(String::from);
 
-            let artist = if let Some(artist_variant) = metadata.get(ARTIST_KEY) {
+            let artist = if let Some(artist_variant) = metadata.get(media::ARTIST_KEY) {
                 match artist_variant {
                     dbus::arg::Variant(boxed_value) => {
                         if let Some(artist_str) = boxed_value.as_str() {
