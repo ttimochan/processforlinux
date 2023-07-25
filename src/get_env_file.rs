@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:45:44
+ * @LastEditTime: 2023-07-25 12:12:57
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -21,7 +21,6 @@ impl std::fmt::Display for ConfigError {
 
 impl Error for ConfigError {}
 
-#[derive(Debug, Clone)]
 struct UserConfig {
     api_url: String,
     api_key: String,
