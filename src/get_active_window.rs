@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:37:33
+ * @LastEditTime: 2023-07-26 16:25:24
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -121,6 +121,13 @@ fn get_window_title_by_id(window_id: &str) -> Result<String, Box<dyn Error>> {
 }
 
 fn get_last_part(original_string: &str) -> Option<String> {
-    let last_space_index = original_string.rfind(' ')?;
-    Some(original_string[(last_space_index + 1)..].to_string())
+    let last_space_index = match original_string.rfind(' ') {
+        Some(index) => index,
+        None => {
+            return Some(original_string.to_string());
+        }
+    };
+
+    let result_string = &original_string[(last_space_index + 1)..];
+    Some(result_string.to_string())
 }
