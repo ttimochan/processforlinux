@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:23:33
+ * @LastEditTime: 2023-07-26 09:35:13
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -42,8 +42,8 @@ async fn run_loop() {
 
         if let Err(e) = report(
             &process_name,
-            &media_metadata.title.as_deref().unwrap_or_default(),
-            &media_metadata.artist.as_deref().unwrap_or_default(),
+            &media_metadata.title.unwrap_or_default(),
+            &media_metadata.artist.unwrap_or_default(),
             &api_key,
             &api_url,
             report_time,
