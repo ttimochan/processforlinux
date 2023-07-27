@@ -72,7 +72,7 @@ API_KEY=your_key
 # 你的云函数地址
 API_URL=https://api.example.cn/api/v2/fn/ps/update
 # 检查时间间隔，单位为秒
-WATCH_TIME=30
+WATCH_TIME=5
 # 是否开启媒体状态上报
 MEDIA_ENABLE=true 
 # 是否打印日志
