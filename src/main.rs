@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-27 18:26:07
+ * @LastEditTime: 2023-07-27 20:36:27
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -10,6 +10,7 @@ mod get_env_file;
 mod get_media;
 mod reportprocess;
 
+use chrono::Utc;
 use lazy_static::lazy_static;
 use std::process::exit;
 use std::{error::Error, io::Write, sync::Mutex, time::Duration};
@@ -22,12 +23,14 @@ lazy_static! {
             eprintln!("Failed to get env file: {}", err);
             exit(1);
         }));
+    static ref PREVIOUS_PROCESS_NAME: Mutex<Option<String>> = Mutex::new(None);
+    static ref PREVIOUS_MEDIA_METADATA: Mutex<Option<get_media::MediaMetadata>> = Mutex::new(None);
 }
 
 async fn run_loop(
     api_key: &str,
     api_url: &str,
-    report_time: i64,
+    watch_time: i64,
     media_enable: bool,
     log_enable: bool,
 ) {
@@ -48,23 +51,44 @@ async fn run_loop(
                 continue;
             }
         };
+        let prev_process_name = PREVIOUS_PROCESS_NAME.lock().unwrap().clone();
+        let prev_media_metadata = PREVIOUS_MEDIA_METADATA.lock().unwrap().clone();
 
-        if let Err(e) = report(
-            &process_name,
-            &media_metadata.title.unwrap_or_default(),
-            &media_metadata.artist.unwrap_or_default(),
-            &api_key,
-            &api_url,
-            report_time,
-            log_enable,
-        )
-        .await
+        if prev_process_name.as_ref() != Some(&process_name)
+            || prev_media_metadata.as_ref() != Some(&media_metadata)
         {
-            eprintln!("Failed to report: {}", e);
-        }
+            if let Err(e) = report(
+                &process_name,
+                &media_metadata.title.clone().unwrap_or_default(),
+                &media_metadata.artist.clone().unwrap_or_default(),
+                &api_key,
+                &api_url,
+                watch_time,
+                log_enable,
+            )
+            .await
+            {
+                eprintln!("Failed to report: {}", e);
+            }
 
-        let report_interval_secs = report_time.to_string().parse::<u64>().unwrap_or(60);
-        sleep(Duration::from_secs(report_interval_secs)).await;
+            *PREVIOUS_PROCESS_NAME.lock().unwrap() = Some(process_name.clone());
+            *PREVIOUS_MEDIA_METADATA.lock().unwrap() = Some(media_metadata.clone());
+        } else {
+            if log_enable {
+                let utc_now = Utc::now();
+                let next_watch_time = utc_now
+                    .checked_add_signed(chrono::Duration::seconds(watch_time))
+                    .unwrap()
+                    .format("%Y-%m-%d %H:%M:%S");
+
+                println!("--------------------------------------------------");
+                println!("No change in process or media metadata");
+                println!("Next Watch Time : {}", next_watch_time);
+                println!("--------------------------------------------------");
+            }
+        }
+        let sleep_interval_secs = watch_time.to_string().parse::<u64>().unwrap_or(60);
+        sleep(Duration::from_secs(sleep_interval_secs)).await;
     }
 }
 
@@ -74,7 +98,7 @@ async fn report(
     media_artist: &str,
     api_key: &str,
     api_url: &str,
-    report_time: i64,
+    watch_time: i64,
     log_enable: bool,
 ) -> Result<(), Box<dyn Error>> {
     reportprocess::process_report(
@@ -83,7 +107,7 @@ async fn report(
         media_artist,
         api_key,
         api_url,
-        report_time,
+        watch_time,
         log_enable,
     )
     .await?;
@@ -92,9 +116,9 @@ async fn report(
 
 #[tokio::main]
 async fn main() {
-    let (api_url, api_key, report_time, media_enable, log_enable) = {
+    let (api_url, api_key, watch_time, media_enable, log_enable) = {
         let api_vars = API_VARIABLES.lock().unwrap();
         api_vars.clone()
     };
-    run_loop(&api_key, &api_url, report_time, media_enable, log_enable).await;
+    run_loop(&api_key, &api_url, watch_time, media_enable, log_enable).await;
 }

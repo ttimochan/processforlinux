@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:51:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-25 12:12:57
+ * @LastEditTime: 2023-07-27 20:16:39
  * @FilePath: /processforlinux/src/get_env_file.rs
  */
 use clap::{App, Arg};
@@ -24,7 +24,7 @@ impl Error for ConfigError {}
 struct UserConfig {
     api_url: String,
     api_key: String,
-    report_time: i64,
+    watch_time: i64,
     media_enable: bool,
     log_enable: bool,
 }
@@ -32,7 +32,7 @@ struct UserConfig {
 fn read_config_values(config_path: &str) -> Result<UserConfig, Box<dyn Error>> {
     let file = File::open(config_path)?;
     let reader = BufReader::new(file);
-    let (mut api_url, mut api_key, mut report_time, mut media_enable, mut log_enable) =
+    let (mut api_url, mut api_key, mut watch_time, mut media_enable, mut log_enable) =
         (None, None, None, None, None);
 
     for line_result in reader.lines() {
@@ -47,7 +47,7 @@ fn read_config_values(config_path: &str) -> Result<UserConfig, Box<dyn Error>> {
             match key {
                 "API_URL" => api_url = Some(value.to_string()),
                 "API_KEY" => api_key = Some(value.to_string()),
-                "REPORT_TIME" => report_time = Some(value.parse()?),
+                "WATCH_TIME" => watch_time = Some(value.parse()?),
                 "MEDIA_ENABLE" => media_enable = Some(value.parse()?),
                 "LOG_ENABLE" => log_enable = Some(value.parse()?),
                 _ => {
@@ -61,7 +61,7 @@ fn read_config_values(config_path: &str) -> Result<UserConfig, Box<dyn Error>> {
     Ok(UserConfig {
         api_url: api_url.ok_or_else(|| ConfigError("API_URL not set".to_string()))?,
         api_key: api_key.ok_or_else(|| ConfigError("API_KEY not set".to_string()))?,
-        report_time: report_time.ok_or_else(|| ConfigError("REPORT_TIME not set".to_string()))?,
+        watch_time: watch_time.ok_or_else(|| ConfigError("WATCH_TIME not set".to_string()))?,
         media_enable: media_enable
             .ok_or_else(|| ConfigError("MEDIA_ENABLE not set".to_string()))?,
         log_enable: log_enable.ok_or_else(|| ConfigError("LOG_ENABLE not set".to_string()))?,
@@ -88,7 +88,7 @@ pub fn init() -> Result<(String, String, i64, bool, bool), Box<dyn Error>> {
     Ok((
         user_config.api_url,
         user_config.api_key,
-        user_config.report_time,
+        user_config.watch_time,
         user_config.media_enable,
         user_config.log_enable,
     ))

@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 15:23:40
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:43:50
+ * @LastEditTime: 2023-07-27 20:03:14
  * @FilePath: /processforlinux/src/get_media.rs
  */
 use dbus::arg::RefArg;
@@ -10,6 +10,7 @@ use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
 use dbus::blocking::Connection;
 use dbus::blocking::Proxy;
 
+#[derive(Clone, PartialEq)]
 pub struct MediaMetadata {
     pub title: Option<String>,
     pub artist: Option<String>,

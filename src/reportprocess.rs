@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-24 18:42:55
+ * @LastEditTime: 2023-07-27 20:32:00
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -22,7 +22,7 @@ pub async fn process_report(
     media_artist: &str,
     api_key: &str,
     api_url: &str,
-    report_time: i64,
+    watch_time: i64,
     log_enable: bool,
 ) -> Result<(), Box<dyn Error>> {
     let timestamp = Utc::now().timestamp();
@@ -67,15 +67,15 @@ pub async fn process_report(
     if log_enable {
         let utc_now = Utc::now();
         let this_report_time = utc_now.format("%Y-%m-%d %H:%M:%S").to_string();
-        let next_report_time = utc_now
-            .checked_add_signed(chrono::Duration::seconds(report_time))
+        let next_watch_time = utc_now
+            .checked_add_signed(chrono::Duration::seconds(watch_time))
             .unwrap()
             .format("%Y-%m-%d %H:%M:%S");
 
         println!("--------------------------------------------------");
         println!("This Report Time: {}", this_report_time);
         println!("Response: {}", &response);
-        println!("Next Report Time: {}", next_report_time);
+        println!("Next Watch Time : {}", next_watch_time);
         println!("--------------------------------------------------");
     }
 
