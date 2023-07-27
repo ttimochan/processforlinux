@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-26 09:35:13
+ * @LastEditTime: 2023-07-27 18:26:07
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -10,21 +10,30 @@ mod get_env_file;
 mod get_media;
 mod reportprocess;
 
-use std::{error::Error, io::Write, time::Duration};
+use lazy_static::lazy_static;
+use std::process::exit;
+use std::{error::Error, io::Write, sync::Mutex, time::Duration};
 use tokio::time::sleep;
 
-async fn run_loop() {
+type ApiVariables = (String, String, i64, bool, bool);
+lazy_static! {
+    static ref API_VARIABLES: Mutex<ApiVariables> =
+        Mutex::new(get_env_file::init().unwrap_or_else(|err| {
+            eprintln!("Failed to get env file: {}", err);
+            exit(1);
+        }));
+}
+
+async fn run_loop(
+    api_key: &str,
+    api_url: &str,
+    report_time: i64,
+    media_enable: bool,
+    log_enable: bool,
+) {
     loop {
         std::io::stdout().flush().unwrap();
         std::io::stderr().flush().unwrap();
-
-        let (api_url, api_key, report_time, media_enable, log_enable) = match get_env_file::init() {
-            Ok(values) => values,
-            Err(e) => {
-                eprintln!("Failed to initialize environment: {}", e);
-                break;
-            }
-        };
 
         let media_metadata = if media_enable {
             get_media::get_media_metadata().unwrap_or_default()
@@ -83,5 +92,9 @@ async fn report(
 
 #[tokio::main]
 async fn main() {
-    run_loop().await;
+    let (api_url, api_key, report_time, media_enable, log_enable) = {
+        let api_vars = API_VARIABLES.lock().unwrap();
+        api_vars.clone()
+    };
+    run_loop(&api_key, &api_url, report_time, media_enable, log_enable).await;
 }
