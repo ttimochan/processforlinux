@@ -700,7 +700,6 @@ dependencies = [
  "chrono",
  "clap",
  "dbus",
- "lazy_static",
  "regex",
  "reqwest",
  "serde_json",

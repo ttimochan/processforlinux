@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-28 17:35:41
+ * @LastEditTime: 2023-07-29 11:25:42
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -11,12 +11,10 @@ mod get_media;
 mod reportprocess;
 
 use chrono::Utc;
-use lazy_static::lazy_static;
-use std::process::exit;
-use std::{error::Error, sync::Mutex, time::Duration};
-use tokio::time::sleep;
 
-type ApiVariables = (String, String, i64, bool, bool);
+use std::process::exit;
+use std::{error::Error, time::Duration};
+use tokio::time::sleep;
 
 struct Config {
     api_url: String,
@@ -26,13 +24,6 @@ struct Config {
     log_enable: bool,
 }
 
-lazy_static! {
-    static ref API_VARIABLES: Mutex<ApiVariables> =
-        Mutex::new(get_env_file::init().unwrap_or_else(|err| {
-            eprintln!("Failed to get env file: {}", err);
-            exit(1);
-        }));
-}
 async fn run_loop(config: Config) {
     let mut last_time = Utc::now();
     let mut previous_process_name = String::new();
@@ -116,8 +107,14 @@ async fn report(
 #[tokio::main]
 async fn main() {
     let (api_url, api_key, watch_time, media_enable, log_enable) = {
-        let api_vars = API_VARIABLES.lock().unwrap();
-        api_vars.clone()
+        let api_vars = get_env_file::init();
+        match api_vars {
+            Ok(api_vars) => api_vars,
+            Err(e) => {
+                eprintln!("Failed to get api variables: {}", e);
+                exit(1);
+            }
+        }
     };
     let config = Config {
         api_url: api_url,
