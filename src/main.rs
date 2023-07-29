@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-29 11:25:42
+ * @LastEditTime: 2023-07-29 11:29:37
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -67,7 +67,6 @@ async fn run_loop(config: Config) {
             last_time = utc_now;
         } else {
             if config.log_enable {
-                let utc_now = Utc::now();
                 let next_watch_time = utc_now
                     .checked_add_signed(chrono::Duration::seconds(config.watch_time))
                     .unwrap()
