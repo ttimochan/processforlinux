@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-31 16:05:34
+ * @LastEditTime: 2023-08-14 16:56:45
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
