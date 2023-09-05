@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-08-14 16:56:45
+ * @LastEditTime: 2023-09-05 15:31:33
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -116,11 +116,11 @@ async fn main() {
         }
     };
     let config = Config {
-        api_url: api_url,
-        api_key: api_key,
-        watch_time: watch_time,
-        media_enable: media_enable,
-        log_enable: log_enable,
+        api_url,
+        api_key,
+        watch_time,
+        media_enable,
+        log_enable,
     };
     run_loop(config).await;
 }
