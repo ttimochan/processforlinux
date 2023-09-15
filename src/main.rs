@@ -49,7 +49,7 @@ async fn run_loop(config: Config) {
 
         if prev_process_name != process_name
             || prev_media_metadata != media_metadata
-            || (utc_now - last_time).num_seconds() > 60
+            || (utc_now - last_time).num_seconds() > 20
         {
             if let Err(e) = report(
                 &process_name,
