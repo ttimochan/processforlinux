@@ -15,6 +15,7 @@ pub struct MediaMetadata {
     pub title: Option<String>,
     pub artist: Option<String>,
 }
+
 impl Default for MediaMetadata {
     fn default() -> Self {
         MediaMetadata {
