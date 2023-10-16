@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 13:50:34
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-27 20:32:00
+ * @LastEditTime: 2023-10-11 07:56:54
  * @FilePath: /processforlinux/src/reportprocess.rs
  */
 use chrono::Utc;
@@ -10,7 +10,7 @@ use reqwest::{
     header::{self, HeaderValue},
     Client,
 };
-use serde_json::json;
+use serde_json::{self as json_self, json};
 use std::error::Error;
 
 const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36 uacq";
@@ -57,7 +57,7 @@ pub async fn process_report(
         client
             .post(api_url)
             .headers(headers)
-            .body(serde_json::to_string(&payload)?)
+            .body(json_self::to_string(&payload)?)
             .send()
             .await?
             .text()

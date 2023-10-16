@@ -23,7 +23,17 @@ struct Config {
     media_enable: bool,
     log_enable: bool,
 }
-
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            api_url: String::new(),
+            api_key: String::new(),
+            watch_time: 5,
+            media_enable: true,
+            log_enable: true,
+        }
+    }
+}
 async fn run_loop(config: Config) {
     let mut last_time = Utc::now();
     let mut previous_process_name = String::new();
