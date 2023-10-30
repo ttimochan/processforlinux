@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-07-26 16:25:24
+ * @LastEditTime: 2023-10-30 22:22:22
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
 use std::error::Error;
@@ -57,6 +57,8 @@ impl WindowTitle {
             "Kmail" => WindowTitle::Mail,
             "QQ" => WindowTitle::QQ,
             "Chrome" => WindowTitle::Chrome,
+            "Chromium" => WindowTitle::Chrome,
+            "Thorium" => WindowTitle::Chrome,
             "qqmusic" => WindowTitle::QQ音乐,
             "Music" => WindowTitle::NetEaseMusic,
             "YesPlayMusic" => WindowTitle::NetEaseMusic,
