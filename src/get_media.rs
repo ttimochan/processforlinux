@@ -11,19 +11,13 @@ use dbus::blocking::Connection;
 use dbus::blocking::Proxy;
 
 #[derive(Clone, PartialEq)]
+#[derive(Default)]
 pub struct MediaMetadata {
     pub title: Option<String>,
     pub artist: Option<String>,
 }
 
-impl Default for MediaMetadata {
-    fn default() -> Self {
-        MediaMetadata {
-            title: None,
-            artist: None,
-        }
-    }
-}
+
 mod constants {
     pub const MEDIA_PLAYER_IDENTIFIERS: [&str; 2] = [
         "org.mpris.MediaPlayer2.yesplaymusic",

@@ -75,19 +75,17 @@ async fn run_loop(config: Config) {
             previous_process_name = process_name;
             previous_media_metadata = media_metadata;
             last_time = utc_now;
-        } else {
-            if config.log_enable {
-                let next_watch_time = utc_now
-                    .checked_add_signed(chrono::Duration::seconds(config.watch_time))
-                    .unwrap()
-                    .format("%Y-%m-%d %H:%M:%S");
-                let utc_now = utc_now.format("%Y-%m-%d %H:%M:%S");
-                println!("--------------------------------------------------");
-                println!("This Watch Time : {}", utc_now);
-                println!("No change in process or media metadata");
-                println!("Next Watch Time : {}", next_watch_time);
-                println!("--------------------------------------------------");
-            }
+        } else if config.log_enable {
+            let next_watch_time = utc_now
+                .checked_add_signed(chrono::Duration::seconds(config.watch_time))
+                .unwrap()
+                .format("%Y-%m-%d %H:%M:%S");
+            let utc_now = utc_now.format("%Y-%m-%d %H:%M:%S");
+            println!("--------------------------------------------------");
+            println!("This Watch Time : {}", utc_now);
+            println!("No change in process or media metadata");
+            println!("Next Watch Time : {}", next_watch_time);
+            println!("--------------------------------------------------");
         }
         let sleep_interval_secs = config.watch_time.to_string().parse::<u64>().unwrap_or(5);
         sleep(Duration::from_secs(sleep_interval_secs)).await;
