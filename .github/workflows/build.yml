@@ -41,7 +41,7 @@ jobs:
             cp "../target/release/processforlinux" ./
             tar -czf "${{ matrix.archive-name }}" LICENSE README.md processforlinux
       - name: Upload archive
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.archive-name }}
           path: archive/${{ matrix.archive-name }}
