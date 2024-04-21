@@ -2,7 +2,7 @@
  * @Author: timochan
  * @Date: 2023-07-17 11:48:02
  * @LastEditors: timochan
- * @LastEditTime: 2023-10-18 08:53:11
+ * @LastEditTime: 2023-12-11 17:33:31
  * @FilePath: /processforlinux/src/main.rs
  */
 mod get_active_window;
@@ -130,5 +130,6 @@ async fn main() {
         media_enable,
         log_enable,
     };
+
     run_loop(config).await;
 }
