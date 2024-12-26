@@ -10,8 +10,7 @@ use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
 use dbus::blocking::Connection;
 use dbus::blocking::Proxy;
 
-#[derive(Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Clone, PartialEq, Default, Debug)]
 pub struct MediaMetadata {
     pub title: Option<String>,
     pub artist: Option<String>,
@@ -19,9 +18,10 @@ pub struct MediaMetadata {
 
 
 mod constants {
-    pub const MEDIA_PLAYER_IDENTIFIERS: [&str; 2] = [
+    pub const MEDIA_PLAYER_IDENTIFIERS: [&str; 3] = [
         "org.mpris.MediaPlayer2.yesplaymusic",
         "org.mpris.MediaPlayer2.netease-cloud-music",
+        "org.mpris.MediaPlayer2.spotify"
     ];
     pub const MPRIS_PLAYER_INTERFACE: &str = "org.mpris.MediaPlayer2.Player";
     pub const METADATA_PROPERTY: &str = "Metadata";
