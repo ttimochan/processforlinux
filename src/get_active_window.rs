@@ -5,32 +5,37 @@
  * @LastEditTime: 2023-10-30 22:22:22
  * @FilePath: /processforlinux/src/get_active_window.rs
 */
+
+/*
+ * It seems that 'xprop' can get the title directly.
+ */
 use std::error::Error;
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 
 enum WindowTitle {
     Code,
-    _WebStorm, //TODO: how to get it?
-    _Telgram,  //TODO: how to get it?
-    _WeChat,   // Linux not have it
+    WebStorm,
+    Telegram,
+    WeChat,
     Discord,
     Mail,
     QQ,
     Chrome,
     QQ音乐,
     NetEaseMusic,
-    iTerm2, //TODO: why it not CamalCase?
+    iTerm2,
     Typora,
     None,
 }
+
 impl std::fmt::Display for WindowTitle {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             WindowTitle::Code => write!(f, "Code"),
-            //WindowTitle::WebStorm => write!(f, "WebStorm"), //TODO: how to get it?
-            //WindowTitle::Telgram => write!(f, "Telgram"),
-            //WindowTitle::WeChat => write!(f, "WeChat"),
+            WindowTitle::WebStorm => write!(f, "WebStorm"),
+            WindowTitle::Telegram => write!(f, "Telegram"),
+            WindowTitle::WeChat => write!(f, "WeChat"),
             WindowTitle::Discord => write!(f, "Discord"),
             WindowTitle::Mail => write!(f, "Mail"),
             WindowTitle::QQ => write!(f, "QQ"),
@@ -40,7 +45,6 @@ impl std::fmt::Display for WindowTitle {
             WindowTitle::iTerm2 => write!(f, "iTerm2"),
             WindowTitle::Typora => write!(f, "Typora"),
             WindowTitle::None => write!(f, "None"),
-            _ => write!(f, "None"),
         }
     }
 }
@@ -48,88 +52,70 @@ impl std::fmt::Display for WindowTitle {
 impl WindowTitle {
     fn from_string(s: &str) -> WindowTitle {
         match s {
-            "Code" => WindowTitle::Code,
-            "Telgram" => WindowTitle::None,    //TODO: can't get it
-            "WebStorm" => WindowTitle::None,   //TODO: can't get it
-            "WeChat" => WindowTitle::None,     //TODO: can't get it
-            "Discord" => WindowTitle::Discord, //TODO: not test
-            "Thunderbird" => WindowTitle::Mail,
-            "Kmail" => WindowTitle::Mail,
-            "QQ" => WindowTitle::QQ,
-            "Chrome" => WindowTitle::Chrome,
-            "Chromium" => WindowTitle::Chrome,
-            "Thorium" => WindowTitle::Chrome,
+            "code" => WindowTitle::Code,
+            "jetbrains-webstorm" => WindowTitle::WebStorm,
+            "telegram" => WindowTitle::Telegram, // TODO: Can't get the title of Telegram
+            "wechat" => WindowTitle::WeChat,
+            "discord" => WindowTitle::Discord, // TODO: Can't test
+            "thunderbird" => WindowTitle::Mail,
+            "kmail" => WindowTitle::Mail, // TODO: Can't get the title of KMail
+            "qq" => WindowTitle::QQ,
+            "google-chrome" => WindowTitle::Chrome,
+            "chromium" => WindowTitle::Chrome,
+            "thorium" => WindowTitle::Chrome,
             "qqmusic" => WindowTitle::QQ音乐,
-            "Music" => WindowTitle::NetEaseMusic,
-            "YesPlayMusic" => WindowTitle::NetEaseMusic,
-            "Yakuake" => WindowTitle::iTerm2,
-            "Konsole" => WindowTitle::iTerm2,
-            "Typora" => WindowTitle::Typora,
-            _ => WindowTitle::None, // Default
+            "music" => WindowTitle::NetEaseMusic,
+            "yesplaymusic" => WindowTitle::NetEaseMusic,
+            "yakuake" => WindowTitle::iTerm2, // TODO: Can't get the title of Yakuake
+            "konsole" => WindowTitle::iTerm2, // TODO: Can't get the title of Konsole
+            "typora" => WindowTitle::Typora,
+            _ => WindowTitle::None,
         }
     }
 }
 
 pub fn get_active_window_process_and_title() -> Result<String, Box<dyn Error>> {
-    let active_window_id = get_active_window_id()?;
-    let window_title = get_window_title_by_id(&active_window_id)?;
-    let process_name = get_last_part(&window_title).unwrap_or("None".to_string());
-    let window_title_enum = WindowTitle::from_string(&process_name);
-
-    Ok(window_title_enum.to_string())
-}
-
-fn get_active_window_id() -> Result<String, Box<dyn Error>> {
     let xprop_output = Command::new("xprop")
         .arg("-root")
         .arg("_NET_ACTIVE_WINDOW")
         .stdout(Stdio::piped())
-        .spawn()?;
-
-    let xprop_stdout = xprop_output
+        .spawn()?
         .stdout
         .ok_or("Failed to capture xprop stdout")?;
 
-    let xprop_reader = BufReader::new(xprop_stdout);
+    let xprop_reader = BufReader::new(xprop_output);
+    let mut window_id = String::new();
     for line in xprop_reader.lines() {
         let line = line?;
         if line.contains("_NET_ACTIVE_WINDOW(WINDOW)") {
-            return Ok(line.split_whitespace().nth(4).unwrap_or("").to_string());
+            window_id = line.split_whitespace().nth(4).unwrap_or("").to_string();
+            break;
         }
     }
 
-    Err("Failed to get active window ID".into())
-}
+    if window_id.is_empty() {
+        return Err("Failed to get active window ID".into());
+    }
 
-fn get_window_title_by_id(window_id: &str) -> Result<String, Box<dyn Error>> {
-    let xwininfo_output = Command::new("xwininfo")
+    let xprop_output = Command::new("xprop")
         .arg("-id")
-        .arg(window_id)
+        .arg(&window_id)
+        .arg("WM_CLASS")
         .stdout(Stdio::piped())
         .spawn()?
         .stdout
-        .ok_or("Failed to capture xwininfo stdout")?;
+        .ok_or("Failed to capture xprop stdout")?;
 
-    let xwininfo_reader = BufReader::new(xwininfo_output);
-    for line in xwininfo_reader.lines() {
+    let xprop_reader = BufReader::new(xprop_output);
+    for line in xprop_reader.lines() {
         let line = line?;
-        if line.contains("xwininfo: Window id:") {
-            let window_name_parts: Vec<&str> = line.split('"').collect();
-            return Ok(window_name_parts[1].to_string());
+        if line.contains("WM_CLASS(STRING)") {
+            let class_name = line.split('"').nth(1).unwrap_or("");
+            println!("class_name: {}", class_name);
+            let window_title_enum = WindowTitle::from_string(class_name);
+            return Ok(window_title_enum.to_string());
         }
     }
 
-    Err("Failed to get window title".into())
-}
-
-fn get_last_part(original_string: &str) -> Option<String> {
-    let last_space_index = match original_string.rfind(' ') {
-        Some(index) => index,
-        None => {
-            return Some(original_string.to_string());
-        }
-    };
-
-    let result_string = &original_string[(last_space_index + 1)..];
-    Some(result_string.to_string())
+    Err("Failed to get window class".into())
 }
